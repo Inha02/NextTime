@@ -28,7 +28,7 @@ export const NextMeCard = styled.div`
   position: relative;
   width: 357px;
   min-height: 244px;
-  background-color: ${({ theme }) => theme.colors.success};
+  background-color: ${({ theme }) => theme.colors.primary};
   border-radius: 24px;
   padding: 36px 20px 20px;
   box-sizing: border-box;
