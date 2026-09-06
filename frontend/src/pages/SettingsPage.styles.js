@@ -12,7 +12,7 @@ export const Container = styled.div`
 export const PageTitle = styled.h1`
   font-size: 20px;
   font-weight: 800;
-  color: #252843;
+  color: ${({ theme }) => theme.colors.bg1};
   margin-bottom: 32px;
 `;
 
@@ -56,7 +56,7 @@ export const ItemRight = styled.div`
 export const StatusText = styled.span`
   font-size: 18px;
   font-weight: 400;
-  color: #B2B2B2;
+  color: ${({ theme }) => theme.colors.light_gray};
 `;
 
 export const Divider = styled.hr`
@@ -69,7 +69,7 @@ export const Chevron = styled.svg`
   width: 20px;
   height: 20px;
   fill: none;
-  stroke: #B2B2B2;
+  stroke: ${({ theme }) => theme.colors.light_gray};
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
