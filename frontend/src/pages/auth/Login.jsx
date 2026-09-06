@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { signIn, signOut } from "aws-amplify/auth";
 import { useToast } from "../../contexts/ToastContext";
 import { registerUser } from "../../api/auth";
+import { getApiErrorMessage } from "../../api/getApiErrorMessage";
+import { debugError } from "../../api/debugLog";
 import Toast from "../../components/Toast/Toast";
 import * as S from "./Login.styles";
 
@@ -16,7 +18,6 @@ const Login = () => {
   const doSignIn = async () => {
     await signIn({ username: email, password });
     const userData = await registerUser();
-
     showToast("로그인 완료!");
     if (!userData.onboardingCompleted) {
       navigate("/onboarding");
@@ -37,14 +38,22 @@ const Login = () => {
           await signOut();
           await doSignIn();
         } catch (retryError) {
-          console.log("재시도 에러 이름:", retryError.name);
-          console.log("재시도 에러 메시지:", retryError.message);
-          setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
+          debugError("auth", "재로그인 실패", retryError);
+          setErrorMessage(
+            getApiErrorMessage(
+              retryError,
+              "이메일 또는 비밀번호가 올바르지 않습니다.",
+            ),
+          );
         }
       } else {
-        console.log("에러 이름:", error.name);
-        console.log("에러 메시지:", error.message);
-        setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
+        debugError("auth", "로그인 실패", error);
+        setErrorMessage(
+          getApiErrorMessage(
+            error,
+            "이메일 또는 비밀번호가 올바르지 않습니다.",
+          ),
+        );
       }
     }
   };
@@ -52,7 +61,6 @@ const Login = () => {
   return (
     <S.FormContainer onSubmit={handleSubmit}>
       <S.Title>로그인</S.Title>
-
       <S.InputGroup>
         <S.Input
           type="email"
@@ -62,7 +70,6 @@ const Login = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
         <S.Input
           type="password"
           placeholder="Password"
@@ -72,16 +79,12 @@ const Login = () => {
           required
         />
       </S.InputGroup>
-
       {errorMessage && <S.ErrorText>{errorMessage}</S.ErrorText>}
-
       <S.SubmitButton type="submit">로그인하기</S.SubmitButton>
-
       <S.BottomText>
         아직 계정이 없으신가요?
         <S.StyledLink to="/signup">회원가입 하기</S.StyledLink>
       </S.BottomText>
-
       {toast && <Toast message={toast.message} />}
     </S.FormContainer>
   );
