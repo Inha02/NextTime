@@ -9,7 +9,7 @@ import mascotEconomy from "../../assets/mascot-economy.svg";
 import mascotGrowth from "../../assets/mascot-growth.svg";
 import mascotRelationship from "../../assets/mascot-relationship.svg";
 import mascotSelfEfficacy from "../../assets/mascot-self-efficacy.svg";
-import { applyGoalUpdate, getNextMe, updateGoal } from "../../api/goal";
+import { applyGoalUpdate, getNextMe, updateGoal } from "../../api/settings";
 import { CHANGE_GOAL_LABEL_MAP } from "../../api/onboardingMappers";
 import * as S from "./GoalPage.styles";
 
@@ -138,7 +138,9 @@ const GoalPage = () => {
       key === "changeGoal" ? newValue : String(newValue ?? "").trim();
 
     if (key !== "changeGoal" && !nextValue) {
-      console.error("나의 목표 수정에 실패했습니다. 수정할 값은 비어 있을 수 없습니다.");
+      console.error(
+        "나의 목표 수정에 실패했습니다. 수정할 값은 비어 있을 수 없습니다.",
+      );
       return;
     }
 

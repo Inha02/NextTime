@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn, signOut } from "aws-amplify/auth";
 import { useToast } from "../../contexts/ToastContext";
-import { registerUser } from "../../api/registerUser";
+import { registerUser } from "../../api/auth";
 import Toast from "../../components/Toast/Toast";
 import * as S from "./Login.styles";
 

@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import mascotImg from "../../assets/mascot-loading.svg";
-import { saveOnboarding } from "../../api/saveOnboarding";
-import { generateNextMe } from "../../api/generateNextMe";
-import { saveCopingProfile } from "../../api/saveCopingProfile";
+import {
+  saveOnboarding,
+  generateNextMe,
+  saveCopingProfile,
+} from "../../api/onboarding";
 import * as S from "./OnboardingLoadingPage.styles";
 
 const OnboardingLoadingPage = () => {
