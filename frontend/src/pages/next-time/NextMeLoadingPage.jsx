@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled, { css, keyframes } from "styled-components";
+import * as S from "./NextMeLoadingPage.styles";
 import { useNextTime } from "../../contexts/NextTimeContext";
 import { NEXT_ME_LOADING } from "../../data/nextTimeMock";
 import {
@@ -55,8 +55,13 @@ const waitRemainingVoiceHoldTime = (startedAt) =>
 
 function NextMeLoadingPage() {
   const navigate = useNavigate();
-  const { session, sessionId, setSession, setFutureVoice, setRecommendedMission } =
-    useNextTime();
+  const {
+    session,
+    sessionId,
+    setSession,
+    setFutureVoice,
+    setRecommendedMission,
+  } = useNextTime();
   useNextTimeStatusRedirect("CONTEXT_SAVED");
   const {
     rewind,
@@ -140,18 +145,12 @@ function NextMeLoadingPage() {
       applyRecommendation(recommendation);
       return recommendation;
     },
-    [
-      applyRecommendation,
-      hasRewindStartedRef,
-      setFutureVoice,
-      setSession,
-    ],
+    [applyRecommendation, hasRewindStartedRef, setFutureVoice, setSession],
   );
 
-  const { error, execute, refetch } = useAsync(
-    loadVoiceAndRecommendation,
-    { immediate: false },
-  );
+  const { error, execute, refetch } = useAsync(loadVoiceAndRecommendation, {
+    immediate: false,
+  });
 
   const missingSessionError = sessionId
     ? null
@@ -290,11 +289,14 @@ function NextMeLoadingPage() {
 
     if (isNextTimeStatusAfter(sessionRef.current?.status, "CONTEXT_SAVED")) {
       const path = getNextTimePathByStatus(sessionRef.current.status);
-      console.log("이미 추천이 끝난 세션이라 미래의 목소리 요청을 건너뜁니다.", {
-        sessionId,
-        status: sessionRef.current.status,
-        path,
-      });
+      console.log(
+        "이미 추천이 끝난 세션이라 미래의 목소리 요청을 건너뜁니다.",
+        {
+          sessionId,
+          status: sessionRef.current.status,
+          path,
+        },
+      );
       applyRecommendation(sessionRef.current);
       navigate(path, {
         replace: true,
@@ -319,8 +321,7 @@ function NextMeLoadingPage() {
       await finishThenGoToRecommend(
         recommendation,
         startedAt,
-        () =>
-          cancelled || requestedSessionId !== sessionRef.current?.sessionId,
+        () => cancelled || requestedSessionId !== sessionRef.current?.sessionId,
       );
     });
 
@@ -390,9 +391,7 @@ function NextMeLoadingPage() {
       variant="dark"
       isLoading={isRewinding}
       error={rewindError || missingSessionError || error}
-      onRetry={
-        rewindError ? retryRewind : sessionId ? handleRetry : undefined
-      }
+      onRetry={rewindError ? retryRewind : sessionId ? handleRetry : undefined}
       loadingTitle="이전 화면으로 돌아가는 중이에요"
       errorTitle={
         rewindError
@@ -402,246 +401,48 @@ function NextMeLoadingPage() {
             : "미래의 목소리를 만들지 못했어요"
       }
     >
-      <PageContainer>
+      <S.PageContainer>
         <Header title="NEXT ME" subtitle="미래의 목소리" onBack={handleBack} />
 
-        <Content>
-          <TextGroup>
+        <S.Content>
+          <S.TextGroup>
             {voice ? (
               <>
-                <HighlightLine $delay={0}>{voice.futureHook}</HighlightLine>
-                <BodyLine $delay={0.4}>{voice.acknowledge}</BodyLine>
-                <BoldLine $delay={0.8}>{voice.futureReason}</BoldLine>
+                <S.HighlightLine $delay={0}>{voice.futureHook}</S.HighlightLine>
+                <S.BodyLine $delay={0.4}>{voice.acknowledge}</S.BodyLine>
+                <S.BoldLine $delay={0.8}>{voice.futureReason}</S.BoldLine>
               </>
             ) : null}
-          </TextGroup>
+          </S.TextGroup>
 
-          <MascotWrap $delay={voice ? 1.2 : 0} $immediate={!voice}>
+          <S.MascotWrap $delay={voice ? 1.2 : 0} $immediate={!voice}>
             <MascotCharacter mood="run" size="lg" />
-          </MascotWrap>
+          </S.MascotWrap>
 
           {voice ? (
-            <ClosingLine $delay={1.6}>{voice.closing}</ClosingLine>
+            <S.ClosingLine $delay={1.6}>{voice.closing}</S.ClosingLine>
           ) : null}
-        </Content>
+        </S.Content>
 
-        <BottomArea>
-          <LoadingBarTrack ref={loadingBarTrackRef}>
-            <LoadingBarBg />
-            <LoadingBarFill
+        <S.BottomArea>
+          <S.LoadingBarTrack ref={loadingBarTrackRef}>
+            <S.LoadingBarBg />
+            <S.LoadingBarFill
               ref={loadingBarFillRef}
               key={`fill-${barKey}`}
               $stage={barStage}
             />
-            <LoadingBarDot
+            <S.LoadingBarDot
               ref={loadingBarDotRef}
               key={`dot-${barKey}`}
               $stage={barStage}
             />
-          </LoadingBarTrack>
-          <LoadingText>{NEXT_ME_LOADING.statusText}</LoadingText>
-        </BottomArea>
-      </PageContainer>
+          </S.LoadingBarTrack>
+          <S.LoadingText>{NEXT_ME_LOADING.statusText}</S.LoadingText>
+        </S.BottomArea>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default NextMeLoadingPage;
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const runMotion = keyframes`
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(0.5rem);
-  }
-`;
-
-const fillMin = keyframes`
-  from {
-    width: 0%;
-  }
-  to {
-    width: ${MIN_BAR_PERCENT}%;
-  }
-`;
-
-const fillExtra = keyframes`
-  from {
-    width: ${MIN_BAR_PERCENT}%;
-  }
-  to {
-    width: 90%;
-  }
-`;
-
-const dotMin = keyframes`
-  from {
-    left: 0;
-  }
-  to {
-    left: calc(${MIN_BAR_PERCENT}% - 0.1875rem);
-  }
-`;
-
-const dotExtra = keyframes`
-  from {
-    left: calc(${MIN_BAR_PERCENT}% - 0.1875rem);
-  }
-  to {
-    left: calc(90% - 0.1875rem);
-  }
-`;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  padding-block: 1.25rem;
-  text-align: center;
-`;
-
-const TextGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: center;
-  word-break: keep-all;
-`;
-
-const FadeLine = styled.p`
-  opacity: 0;
-  animation: ${fadeInUp} 0.6s ease forwards;
-  animation-delay: ${({ $delay }) => $delay}s;
-`;
-
-const HighlightLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const BodyLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-`;
-
-const BoldLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const MascotWrap = styled.div`
-  opacity: ${({ $immediate }) => ($immediate ? 1 : 0)};
-  animation:
-    ${fadeInUp} 0.6s ease forwards,
-    ${runMotion} 0.6s ease-in-out infinite;
-  animation-delay: ${({ $delay, $immediate }) =>
-      $immediate ? "0s" : `${$delay}s`},
-    ${({ $delay, $immediate }) =>
-      $immediate ? "0.6s" : `${$delay + 0.6}s`};
-`;
-
-const ClosingLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.4;
-`;
-
-const BottomArea = styled.div`
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 3.56rem;
-`;
-
-const LoadingBarTrack = styled.div`
-  position: relative;
-  width: 100%;
-  height: 0.125rem;
-`;
-
-const LoadingBarBg = styled.div`
-  position: absolute;
-  top: 0.125rem;
-  left: 0;
-  width: 100%;
-  height: 0.125rem;
-  border-radius: 6.25rem;
-  background: rgba(178, 178, 178, 0.8);
-`;
-
-const LoadingBarFill = styled.div`
-  position: absolute;
-  top: 0.125rem;
-  left: 0;
-  height: 0.125rem;
-  border-radius: 6.25rem;
-  background: ${({ theme }) => theme.colors.primary};
-  width: ${({ $stage }) => ($stage === "extra" ? `${MIN_BAR_PERCENT}%` : "0")};
-  animation: ${({ $stage }) =>
-    $stage === "extra"
-      ? css`
-          ${fillExtra} 20s linear forwards
-        `
-      : css`
-          ${fillMin} ${MIN_LOADING_MS}ms ease-out forwards
-        `};
-`;
-
-const LoadingBarDot = styled.div`
-  position: absolute;
-  top: 0;
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: 50%;
-  background: ${({ theme }) => theme.colors.primary};
-  left: ${({ $stage }) =>
-    $stage === "extra" ? `calc(${MIN_BAR_PERCENT}% - 0.1875rem)` : "0"};
-  animation: ${({ $stage }) =>
-    $stage === "extra"
-      ? css`
-          ${dotExtra} 20s linear forwards
-        `
-      : css`
-          ${dotMin} ${MIN_LOADING_MS}ms ease-out forwards
-        `};
-`;
-
-const LoadingText = styled.p`
-  color: ${({ theme }) => theme.colors.light_gray};
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.4;
-  text-align: center;
-`;

@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./ContextFlowPage.styles";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useElementHeight } from "../../hooks/useElementHeight";
@@ -153,121 +153,47 @@ function ContextFlowPage() {
       loadingTitle="상황을 저장하는 중이에요"
       errorTitle="상황 저장에 실패했어요"
     >
-      <PageContainer>
-      <Header onBack={handleBack} />
+      <S.PageContainer>
+        <Header onBack={handleBack} />
 
-      <IntroBlock>
-        <NextTime>NEXT TIME</NextTime>
-        <MainTitle>
-          현재 상황을
-          <br />
-          간단하게 알려주세요.
-        </MainTitle>
-        <HelperText>욕구를 줄이도록 도움을 드리기 위해 필요해요</HelperText>
-      </IntroBlock>
+        <S.IntroBlock>
+          <S.NextTime>NEXT TIME</S.NextTime>
+          <S.MainTitle>
+            현재 상황을
+            <br />
+            간단하게 알려주세요.
+          </S.MainTitle>
+          <S.HelperText>
+            욕구를 줄이도록 도움을 드리기 위해 필요해요
+          </S.HelperText>
+        </S.IntroBlock>
 
-      <ProgressBarWrap>
-        <ProgressBar percentage={progressPercentage} />
-      </ProgressBarWrap>
+        <S.ProgressBarWrap>
+          <ProgressBar percentage={progressPercentage} />
+        </S.ProgressBarWrap>
 
-      <ScrollContent $bottomAreaHeight={bottomAreaHeight}>
-        <Question>{currentStep.question}</Question>
-        <OptionGrid
-          options={currentStep.options}
-          variant={currentStep.variant}
-          layout={currentStep.layout}
-          selectedValue={selectedValue}
-          onChange={handleSelect}
-        />
-      </ScrollContent>
+        <S.ScrollContent $bottomAreaHeight={bottomAreaHeight}>
+          <S.Question>{currentStep.question}</S.Question>
+          <OptionGrid
+            options={currentStep.options}
+            variant={currentStep.variant}
+            layout={currentStep.layout}
+            selectedValue={selectedValue}
+            onChange={handleSelect}
+          />
+        </S.ScrollContent>
 
-      <BottomArea ref={bottomAreaRef}>
-        <PrimaryButton disabled={!selectedValue} onClick={handlePrimaryAction}>
-          {isLastStep ? "내게 맞는 행동 찾기" : "다음"}
-        </PrimaryButton>
-      </BottomArea>
-    </PageContainer>
+        <S.BottomArea ref={bottomAreaRef}>
+          <PrimaryButton
+            disabled={!selectedValue}
+            onClick={handlePrimaryAction}
+          >
+            {isLastStep ? "내게 맞는 행동 찾기" : "다음"}
+          </PrimaryButton>
+        </S.BottomArea>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default ContextFlowPage;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-  position: relative;
-`;
-
-const IntroBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 2rem;
-
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const NextTime = styled.p`
-  color: ${({ theme }) => theme.colors.bg0};
-  font-size: 0.875rem;
-`;
-
-const MainTitle = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.5rem;
-`;
-
-const HelperText = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 0.875rem;
-  font-weight: 400;
-`;
-
-const ProgressBarWrap = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const ScrollContent = styled.div`
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding-bottom: ${({ $bottomAreaHeight }) => $bottomAreaHeight}rem;
-`;
-
-const Question = styled.h2`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.4;
-  word-break: keep-all;
-`;
-
-const BottomArea = styled.div`
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  bottom: 0;
-  padding-block: 2.5rem 2.25rem;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 20, 0) 0%,
-    rgba(10, 10, 20, 0.85) 35%,
-    rgba(10, 10, 20, 0.85) 100%
-  );
-
-  pointer-events: none;
-
-  & > button {
-    opacity: 0.92;
-    pointer-events: auto;
-  }
-`;

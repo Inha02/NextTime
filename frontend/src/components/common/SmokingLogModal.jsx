@@ -59,7 +59,7 @@ function SmokingLogModal({
   };
 
   return (
-    <S.Modal isOpen={isOpen} onClose={handleModalClose}>
+    <Modal isOpen={isOpen} onClose={handleModalClose}>
       <ApiStatusView
         variant="embed"
         isLoading={isLoading || Boolean(data)}
@@ -97,16 +97,16 @@ function SmokingLogModal({
           </S.QuestionBlock>
 
           <S.ButtonBlock>
-            <S.PrimaryButton type="button" onClick={handleModalSubmit}>
+            <PrimaryButton type="button" onClick={handleModalSubmit}>
               기록하기
-            </S.PrimaryButton>
+            </PrimaryButton>
             <S.SkipButton type="button" onClick={handleModalClose}>
               건너뛰기
             </S.SkipButton>
           </S.ButtonBlock>
         </S.FormStack>
       </ApiStatusView>
-    </S.Modal>
+    </Modal>
   );
 }
 

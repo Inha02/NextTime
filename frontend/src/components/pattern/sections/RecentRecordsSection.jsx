@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import * as S from "./RecentRecordsSection.styles";
 import RecordList from "../RecordList";
-import { SectionTitle } from "./RecentChangeSection";
-import { Section } from "./HelpfulActionSection";
+import { SectionTitle } from "./RecentChangeSection.styles";
+import { Section } from "./HelpfulActionSection.styles";
 import { mapRecordListItem } from "../mapRecordItem";
 
 function RecentRecordsSection({ records = [] }) {

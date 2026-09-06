@@ -4,8 +4,8 @@ import {
   SectionTitle,
   Subtitle,
   SummaryText,
-} from "./RecentChangeSection";
-import { Section, CommonText } from "./HelpfulActionSection";
+} from "./RecentChangeSection.styles";
+import { Section, CommonText } from "./HelpfulActionSection.styles";
 
 function MemorableMomentSection({ triggers = [], topTimeSlot }) {
   const visibleMoments = triggers.filter((trigger) => trigger.count > 0);

@@ -1,4 +1,4 @@
-import * as S from "./PatternEmptyContent.styled";
+import * as S from "./PatternEmptyContent.styles";
 import mascot from "../../../assets/mascot.svg";
 
 function PatternEmptyContent({ recordCount, requiredCount }) {

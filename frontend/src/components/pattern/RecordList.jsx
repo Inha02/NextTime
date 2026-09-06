@@ -16,7 +16,7 @@ function StatusText({ status }) {
   return <S.CravingText $label={status[0]}>{status[0]}</S.CravingText>;
 }
 
-function RecordList({ recordList, onClick, ItemComponent = RecordItem }) {
+function RecordList({ recordList, onClick, ItemComponent = S.RecordItem }) {
   return (
     <S.ListWrapper>
       {recordList.map((record) => {

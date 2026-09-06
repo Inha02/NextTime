@@ -1,5 +1,5 @@
-import * as S from "./HelpfulActionSection.styled";
-import { SectionTitle } from "./RecentChangeSection";
+import * as S from "./HelpfulActionSection.styles";
+import { SectionTitle } from "./RecentChangeSection.styles";
 
 function mapAction(action, index) {
   const canShowResult = (action.resultCount ?? 0) >= 2;
