@@ -24,7 +24,7 @@ export const ProgressBarTrack = styled.div`
 export const ProgressBarFill = styled.div`
   height: 100%;
   border-radius: 2px;
-  background-color: #00d579;
+  background-color: ${({ theme }) => theme.colors.primary};
   width: ${({ $progress }) => $progress}%;
   transition: width 0.25s ease;
 `;
@@ -100,7 +100,7 @@ export const TextArea = styled.textarea`
   font-size: 14px;
   font-weight: ${({ $filled }) => ($filled ? 600 : 400)};
   font-family: inherit;
-  color: #252843;
+  color: ${({ theme }) => theme.colors.bg1};
   line-height: 1.5;
   resize: none;
   box-sizing: border-box;

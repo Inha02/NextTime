@@ -157,7 +157,7 @@ export const FooterNote = styled.p`
   margin-top: 8px;
   margin-bottom: 36px;
   font-size: 12px;
-  color: #b2b2b2;
+  color: ${({ theme }) => theme.colors.light_gray};
   text-align: center;
 `;
 

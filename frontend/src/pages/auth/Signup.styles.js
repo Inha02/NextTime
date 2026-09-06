@@ -60,7 +60,7 @@ export const SubmitButton = styled.button`
   border-radius: 16px;
   border: none;
   background-color: ${({ theme }) => theme.brand.auth.primary};
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
