@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import * as S from "./RecentRecordsSection.styles";
 import RecordList from "../RecordList";
 import { SectionTitle } from "./RecentChangeSection";
 import { Section } from "./HelpfulActionSection";
@@ -11,15 +11,15 @@ function RecentRecordsSection({ records = [] }) {
 
   return (
     <Section>
-      <SectionHeader>
+      <S.SectionHeader>
         <SectionTitle>최근 기록</SectionTitle>
-        <ViewAllButton
+        <S.ViewAllButton
           type="button"
           onClick={() => navigate("/pattern/records")}
         >
           전체 보기
-        </ViewAllButton>
-      </SectionHeader>
+        </S.ViewAllButton>
+      </S.SectionHeader>
 
       {recordList.length > 0 ? <RecordList recordList={recordList} /> : null}
     </Section>
@@ -27,19 +27,3 @@ function RecentRecordsSection({ records = [] }) {
 }
 
 export default RecentRecordsSection;
-
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const ViewAllButton = styled.button`
-  border: none;
-  background: transparent;
-  color: ${({ theme }) => theme.colors.light_gray};
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  line-height: 1.4;
-`;

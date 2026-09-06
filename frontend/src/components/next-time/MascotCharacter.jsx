@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./MascotCharacter.styles";
 import mascotNeutral from "../../assets/mascot-neutral.svg";
 import mascotCraving from "../../assets/mascot-craving.svg";
 import mascotUrgent from "../../assets/mascot-urgent.svg";
@@ -28,7 +28,7 @@ function MascotCharacter({ mood = "neutral", size = "md", alt = "" }) {
   }
 
   return (
-    <Image
+    <S.Image
       src={src}
       alt={alt}
       $width={SIZE_MAP[size].width}
@@ -38,10 +38,3 @@ function MascotCharacter({ mood = "neutral", size = "md", alt = "" }) {
 }
 
 export default MascotCharacter;
-
-const Image = styled.img`
-  width: ${({ $width }) => $width};
-  height: ${({ $height }) => $height};
-  object-fit: contain;
-  flex-shrink: 0;
-`;

@@ -36,10 +36,14 @@ const Login = () => {
         try {
           await signOut();
           await doSignIn();
-        } catch {
+        } catch (retryError) {
+          console.log("재시도 에러 이름:", retryError.name);
+          console.log("재시도 에러 메시지:", retryError.message);
           setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
       } else {
+        console.log("에러 이름:", error.name);
+        console.log("에러 메시지:", error.message);
         setErrorMessage("이메일 또는 비밀번호가 올바르지 않습니다.");
       }
     }

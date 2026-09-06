@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styled from "styled-components";
+import * as S from "./RecordDetailSheet.styles";
 import BottomSheet from "../common/BottomSheet";
 import ApiStatusView from "../common/ApiStatusView";
 import useAsync from "../../hooks/useAsync";
@@ -24,7 +24,7 @@ function RecordDetailSheet({ isOpen, onClose, recordId }) {
   const detail = data ? mapRecordDetail(data) : null;
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose}>
+    <S.BottomSheet isOpen={isOpen} onClose={onClose}>
       <ApiStatusView
         variant="embed"
         isLoading={Boolean(recordId) && !error && (isLoading || !data)}
@@ -34,53 +34,20 @@ function RecordDetailSheet({ isOpen, onClose, recordId }) {
       >
         {detail ? (
           <>
-            <DateTitle>{detail.time}</DateTitle>
-            <DataFields>
+            <S.DateTitle>{detail.time}</S.DateTitle>
+            <S.DataFields>
               {detail.fields.map((field) => (
-                <Field key={field.label}>
-                  <FieldLabel>{field.label}</FieldLabel>
-                  <FieldValue>{field.value}</FieldValue>
-                </Field>
+                <S.Field key={field.label}>
+                  <S.FieldLabel>{field.label}</S.FieldLabel>
+                  <S.FieldValue>{field.value}</S.FieldValue>
+                </S.Field>
               ))}
-            </DataFields>
+            </S.DataFields>
           </>
         ) : null}
       </ApiStatusView>
-    </BottomSheet>
+    </S.BottomSheet>
   );
 }
 
 export default RecordDetailSheet;
-
-const DateTitle = styled.p`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.4;
-`;
-
-const DataFields = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const Field = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const FieldLabel = styled.p`
-  font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.gray};
-  font-weight: 400;
-  line-height: 1.4;
-`;
-
-const FieldValue = styled.p`
-  font-size: 1rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.bg1};
-  line-height: 1.4;
-`;
