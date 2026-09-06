@@ -15,7 +15,7 @@ export const Content = styled.div`
 
 export const SectionLabel = styled.p`
   font-size: 14px;
-  color: #b2b2b2;
+  color: ${({ theme }) => theme.colors.light_gray};
   font-weight: 600;
   margin-top: 24px;
   margin-bottom: 12px;
@@ -24,7 +24,7 @@ export const SectionLabel = styled.p`
 export const FirstSectionLabel = styled(SectionLabel)`
   margin-top: 39px;  
   font-weight: 600;
-  color: #b2b2b2;
+  color: ${({ theme }) => theme.colors.light_gray};
 `;
 
 export const Row = styled.div`
@@ -81,7 +81,7 @@ export const NextMeCard = styled.div`
 export const NextMeLabel = styled.p`
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   margin-top: 16px;
   margin-bottom: 8px;
 `;
@@ -90,7 +90,7 @@ export const NextMeText = styled.p`
   font-size: 24px;
   font-weight: 600;
   line-height: 1.4;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   margin-bottom: 16px;
   max-width: 60%;
   word-break: break-all;
@@ -98,7 +98,7 @@ export const NextMeText = styled.p`
 
 export const NextMeSubLabel = styled.p`
   font-size: 14px;
-  color: #FEFEFE;
+  color: ${({ theme }) => theme.colors.bg0};
   margin-bottom: 4px;
   font-weight: 600;
 `;
@@ -106,7 +106,7 @@ export const NextMeSubLabel = styled.p`
 export const NextMeSubText = styled.p`
   font-size: 14px;
   line-height: 1.5;
-  color: #FEFEFE;
+  color: ${({ theme }) => theme.colors.bg0};
   max-width: 55%;
   font-weight: 400;
 `;

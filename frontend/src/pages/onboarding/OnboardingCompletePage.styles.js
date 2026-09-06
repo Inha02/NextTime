@@ -28,7 +28,7 @@ export const NextMeCard = styled.div`
   position: relative;
   width: 357px;
   min-height: 244px;
-  background-color: #00d579;
+  background-color: ${({ theme }) => theme.colors.success};
   border-radius: 24px;
   padding: 36px 20px 20px;
   box-sizing: border-box;
@@ -40,14 +40,14 @@ export const NextMeLabel = styled.p`
   font-size: 14px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
 `;
 
 export const NextMeText = styled.p`
   font-size: 24px;
   font-weight: 700;
   line-height: 1.4;
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   margin-bottom: 8px;
   max-width: 65%;
   word-break: break-all;
@@ -57,14 +57,14 @@ export const NextMeText = styled.p`
 export const NextMeSubLabel = styled.p`
   font-size: 14px;
   font-weight: 600;
-  color: #fefefe;
+  color: ${({ theme }) => theme.colors.bg0};
   margin-bottom: 4px;
 `;
 
 export const NextMeSubText = styled.p`
   font-size: 14px;
   line-height: 1.4;
-  color: #fefefe;
+  color: ${({ theme }) => theme.colors.bg0};
   max-width: 55%;
   word-break: break-all;
   overflow-wrap: break-word;
@@ -110,7 +110,7 @@ export const StartButton = styled.button`
   border: none;
   border-radius: 16px;
   background-color: ${({ theme }) => theme.colors.primary};
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
