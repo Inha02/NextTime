@@ -15,6 +15,7 @@ import WhyThisBox from "../../components/next-time/WhyThisBox";
 import ApiStatusView from "../../components/common/ApiStatusView";
 import useSkipNextTimeMission from "../../hooks/useSkipNextTimeMission";
 import useRewindNextTimeSession from "../../hooks/useRewindNextTimeSession";
+import { debugLog, debugError } from "../../api/debugLog";
 
 function splitMissionTitle(title) {
   if (!title) return [""];
@@ -83,18 +84,22 @@ function MissionPage() {
     if (isLoading || hasRewindStartedRef.current) return;
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 미션을 완료할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 미션을 완료할 수 없습니다.");
       return;
     }
 
     if (isNextTimeStatusAfter(session?.status, "MISSION_STARTED")) {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 이미 미션 시작 이후 단계라 미션 완료를 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 이미 미션 시작 이후 단계라 미션 완료를 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       if (session.status === "MISSION_COMPLETED") {
         goToRecord(session);
         return;
@@ -103,14 +108,14 @@ function MissionPage() {
       return;
     }
 
-    console.log("미션을 완료합니다.", { sessionId });
+    debugLog("nextTime", "미션을 완료합니다.", { sessionId });
     const result = await execute(sessionId);
     if (!result) {
-      console.error("미션 완료에 실패했습니다.");
+      debugError("nextTime", "미션 완료에 실패했습니다.", completeError);
       return;
     }
 
-    console.log("미션을 완료했습니다.", {
+    debugLog("nextTime", "미션을 완료했습니다.", {
       sessionId: result.sessionId,
       status: result.status,
       mission: result.mission,
@@ -120,6 +125,7 @@ function MissionPage() {
     });
     goToRecord(result);
   }, [
+    completeError,
     execute,
     goToRecord,
     hasRewindStartedRef,
@@ -140,14 +146,14 @@ function MissionPage() {
       return;
     }
 
-    console.log("미션 완료를 다시 시도합니다.", { sessionId });
+    debugLog("nextTime", "미션 완료를 다시 시도합니다.", { sessionId });
     const result = await refetch();
     if (!result) {
-      console.error("미션 완료에 실패했습니다.");
+      debugError("nextTime", "미션 완료에 실패했습니다.", completeError);
       return;
     }
 
-    console.log("미션을 완료했습니다.", {
+    debugLog("nextTime", "미션을 완료했습니다.", {
       sessionId: result.sessionId,
       status: result.status,
       mission: result.mission,
@@ -208,7 +214,7 @@ function MissionPage() {
   };
 
   return (
-    <S.ApiStatusView
+    <ApiStatusView
       variant="dark"
       isLoading={isLoading}
       error={error}
@@ -242,7 +248,7 @@ function MissionPage() {
                 ))}
               </S.MissionTitle>
 
-              <S.CircularTimer
+              <CircularTimer
                 totalSeconds={durationSeconds}
                 remainingSeconds={Math.max(0, remainingSeconds)}
                 showRemainingLabel
@@ -265,7 +271,7 @@ function MissionPage() {
           </S.BottomArea>
         </S.AllContent>
       </S.PageContainer>
-    </S.ApiStatusView>
+    </ApiStatusView>
   );
 }
 

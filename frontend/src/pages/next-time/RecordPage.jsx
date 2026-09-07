@@ -1,4 +1,4 @@
-import * as S from "./RecommendPage.styles";
+import * as S from "./RecordPage.styles";
 import { useNavigate } from "react-router-dom";
 import { useElementHeight } from "../../hooks/useElementHeight";
 import { useNextTime } from "../../contexts/NextTimeContext";
@@ -11,7 +11,6 @@ import {
   isNextTimeStatusAfter,
   saveNextTimeResult,
 } from "../../api/nextTime";
-
 import {
   FEEDBACK_MAX_LENGTH,
   RECORD_OPTIONS,
@@ -22,6 +21,7 @@ import OptionGrid from "../../components/next-time/OptionGrid";
 import TextAreaField from "../../components/next-time/TextAreaField";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
 import ApiStatusView from "../../components/common/ApiStatusView";
+import { debugLog, debugError } from "../../api/debugLog";
 
 const RECORD_FIELD_LAYOUT = {
   howDidYouDo: "list-start",
@@ -30,7 +30,7 @@ const RECORD_FIELD_LAYOUT = {
 };
 
 const logSavedResult = (result) => {
-  console.log("결과를 저장했습니다.", {
+  debugLog("nextTime", "결과를 저장했습니다.", {
     sessionId: result.sessionId,
     status: result.status,
     result: result.result,
@@ -79,7 +79,7 @@ function RecordPage() {
     });
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 결과를 저장할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 결과를 저장할 수 없습니다.");
       return;
     }
 
@@ -88,7 +88,7 @@ function RecordPage() {
       !payload.cravingAfter ||
       !payload.missionHelpfulness
     ) {
-      console.error("기록 데이터 매핑에 실패했습니다.", {
+      debugError("nextTime", "기록 데이터 매핑에 실패했습니다.", null, {
         howDidYouDo,
         currentIntensity,
         missionFeedback,
@@ -102,12 +102,16 @@ function RecordPage() {
       isNextTimeStatusAfter(session?.status, "MISSION_COMPLETED")
     ) {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 이미 결과 기록 이후 단계라 저장을 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 이미 결과 기록 이후 단계라 저장을 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       if (session.status === "RESULT_RECORDED") {
         goToComplete(session);
         return;
@@ -116,10 +120,10 @@ function RecordPage() {
       return;
     }
 
-    console.log("결과를 저장합니다.", { sessionId, payload });
+    debugLog("nextTime", "결과를 저장합니다.", { sessionId, payload });
     const result = await execute(sessionId, payload);
     if (!result) {
-      console.error("결과 저장에 실패했습니다.");
+      debugError("nextTime", "결과 저장에 실패했습니다.", error);
       return;
     }
 
@@ -128,10 +132,10 @@ function RecordPage() {
   };
 
   const handleRetry = async () => {
-    console.log("결과 저장을 다시 시도합니다.", { sessionId });
+    debugLog("nextTime", "결과 저장을 다시 시도합니다.", { sessionId });
     const result = await refetch();
     if (!result) {
-      console.error("결과 저장에 실패했습니다.");
+      debugError("nextTime", "결과 저장에 실패했습니다.", error);
       return;
     }
 

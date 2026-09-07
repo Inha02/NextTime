@@ -189,7 +189,7 @@ function RecommendPage() {
             ))}
           </S.MissionTitle>
 
-          <S.CircularTimer
+          <CircularTimer
             totalSeconds={durationSeconds}
             remainingSeconds={durationSeconds}
           />

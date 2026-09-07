@@ -7,6 +7,7 @@ import { SMOKING_TRIGGER_OPTIONS, createSmokingRecord } from "../../api/record";
 import { getHome } from "../../api/home";
 import { useToast } from "../../contexts/ToastContext";
 import useAsync from "../../hooks/useAsync";
+import { debugError } from "../../api/debugLog";
 
 function SmokingLogModal({
   isOpen,
@@ -40,21 +41,17 @@ function SmokingLogModal({
 
   const handleModalSubmit = async () => {
     if (isLoading) return;
-
     const record = await execute(selectedId || undefined);
     if (!record) return;
-
     onClose();
     showToast("기록했어요. 다음 추천에 반영할게요.");
     onSuccess?.(record);
-
     if (!shouldRefreshHome) return;
-
     try {
       const homeData = await getHome();
       onSuccess?.(record, homeData);
     } catch (err) {
-      console.error(err);
+      debugError("record", "홈 데이터 갱신 실패", err);
     }
   };
 
@@ -70,12 +67,10 @@ function SmokingLogModal({
       >
         <S.FormStack>
           <S.Title>방금 피운 담배를 기록할까요?</S.Title>
-
           <S.TimeBlock>
             <S.TimeLabel>기록 시각</S.TimeLabel>
             <S.Time>{timeText} (자동)</S.Time>
           </S.TimeBlock>
-
           <S.QuestionBlock>
             <S.QuestionLabel>어떤 상황이었나요? (선택)</S.QuestionLabel>
             <S.OptionGrid>
@@ -95,7 +90,6 @@ function SmokingLogModal({
               ))}
             </S.OptionGrid>
           </S.QuestionBlock>
-
           <S.ButtonBlock>
             <PrimaryButton type="button" onClick={handleModalSubmit}>
               기록하기

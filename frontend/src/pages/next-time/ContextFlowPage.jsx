@@ -16,6 +16,7 @@ import ProgressBar from "../../components/next-time/ProgressBar";
 import OptionGrid from "../../components/next-time/OptionGrid";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
 import ApiStatusView from "../../components/common/ApiStatusView";
+import { debugLog, debugError } from "../../api/debugLog";
 
 const STEP_FIELD_MAP = {
   intensity: {
@@ -66,7 +67,7 @@ function ContextFlowPage() {
     });
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 상황을 저장할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 상황을 저장할 수 없습니다.");
       return;
     }
 
@@ -75,7 +76,7 @@ function ContextFlowPage() {
       !payload.locationContextId ||
       !payload.triggerContextId
     ) {
-      console.error("상황 데이터 매핑에 실패했습니다.", {
+      debugError("nextTime", "상황 데이터 매핑에 실패했습니다.", null, {
         situationIntensity: nextTime.situationIntensity,
         location: nextTime.location,
         moment: nextTime.moment,
@@ -86,36 +87,40 @@ function ContextFlowPage() {
 
     if (session?.status && session.status !== "CREATED") {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 CREATED 상태가 아니라 상황 저장을 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 CREATED 상태가 아니라 상황 저장을 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       navigate(path, { replace: true });
       return;
     }
 
-    console.log("상황 데이터를 저장합니다.", { sessionId, payload });
+    debugLog("nextTime", "상황 데이터를 저장합니다.", { sessionId, payload });
     const result = await execute(sessionId, payload);
     if (!result) {
-      console.error("상황 데이터 저장에 실패했습니다.");
+      debugError("nextTime", "상황 데이터 저장에 실패했습니다.");
       return;
     }
 
-    console.log("상황 데이터를 저장했습니다.", result);
+    debugLog("nextTime", "상황 데이터를 저장했습니다.", result);
     goToNextMe(result);
   };
 
   const handleRetry = async () => {
-    console.log("상황 데이터 저장을 다시 시도합니다.");
+    debugLog("nextTime", "상황 데이터 저장을 다시 시도합니다.");
     const result = await refetch();
     if (!result) {
-      console.error("상황 데이터 저장에 실패했습니다.");
+      debugError("nextTime", "상황 데이터 저장에 실패했습니다.");
       return;
     }
 
-    console.log("상황 데이터를 저장했습니다.", result);
+    debugLog("nextTime", "상황 데이터를 저장했습니다.", result);
     goToNextMe(result);
   };
 

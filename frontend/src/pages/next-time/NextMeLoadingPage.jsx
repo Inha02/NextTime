@@ -16,6 +16,7 @@ import useRewindNextTimeSession from "../../hooks/useRewindNextTimeSession";
 import Header from "../../components/next-time/Header";
 import MascotCharacter from "../../components/next-time/MascotCharacter";
 import ApiStatusView from "../../components/common/ApiStatusView";
+import { debugLog, debugError } from "../../api/debugLog";
 
 const MIN_LOADING_MS = 5000;
 const VOICE_HOLD_MS = 3500;
@@ -29,7 +30,7 @@ const waitRemainingTime = async (startedAt, minMs, label) => {
 
   const elapsedMs = Math.round(performance.now() - startedAt);
   const remainingMs = Math.max(0, minMs - elapsedMs);
-  console.log(label, {
+  debugLog("nextTime", label, {
     elapsedMs,
     minMs,
     remainingMs,
@@ -107,12 +108,12 @@ function NextMeLoadingPage() {
       setVoice(null);
       voiceDisplayedAtRef.current = null;
 
-      console.log("미래의 목소리를 생성합니다.", { sessionId: id });
+      debugLog("nextTime", "미래의 목소리를 생성합니다.", { sessionId: id });
       const voiceResult = await generateFutureVoice(id);
       if (hasRewindStartedRef.current) return null;
 
       const { elapsedMs, ...sessionVoice } = voiceResult;
-      console.log("미래의 목소리를 생성했습니다.", {
+      debugLog("nextTime", "미래의 목소리를 생성했습니다.", {
         sessionId: sessionVoice.sessionId,
         source: sessionVoice.source,
         elapsedMs,
@@ -129,11 +130,11 @@ function NextMeLoadingPage() {
         status: prev?.status ?? sessionVoice.status,
       }));
 
-      console.log("추천 미션을 요청합니다.", { sessionId: id });
+      debugLog("nextTime", "추천 미션을 요청합니다.", { sessionId: id });
       const recommendation = await getNextTimeRecommendation(id);
       if (hasRewindStartedRef.current) return null;
 
-      console.log("추천 미션을 받았습니다.", {
+      debugLog("nextTime", "추천 미션을 받았습니다.", {
         sessionId: recommendation.sessionId,
         status: recommendation.status,
         source: recommendation.source,
@@ -172,7 +173,7 @@ function NextMeLoadingPage() {
       hasNavigatedRef.current = true;
       setSession(nextSession);
       if (mission) {
-        console.log("추천 화면으로 이동합니다.", { mission });
+        debugLog("nextTime", "추천 화면으로 이동합니다.", { mission });
       }
       navigate("/next-time/recommend", {
         replace: true,
@@ -198,7 +199,7 @@ function NextMeLoadingPage() {
         ? Math.min(99.5, Math.max(0, (fillWidth / trackWidth) * 100))
         : MIN_BAR_PERCENT;
 
-    console.log("로딩 바를 끝까지 채웁니다.", {
+    debugLog("nextTime", "로딩 바를 끝까지 채웁니다.", {
       fromPercent: Math.round(fromPercent),
       completeMs: COMPLETE_BAR_MS,
     });
@@ -279,7 +280,8 @@ function NextMeLoadingPage() {
 
   useEffect(() => {
     if (!sessionId) {
-      console.error(
+      debugError(
+        "nextTime",
         "세션 ID가 없어 미래의 목소리와 추천 미션을 요청할 수 없습니다.",
       );
       return;
@@ -289,7 +291,8 @@ function NextMeLoadingPage() {
 
     if (isNextTimeStatusAfter(sessionRef.current?.status, "CONTEXT_SAVED")) {
       const path = getNextTimePathByStatus(sessionRef.current.status);
-      console.log(
+      debugLog(
+        "nextTime",
         "이미 추천이 끝난 세션이라 미래의 목소리 요청을 건너뜁니다.",
         {
           sessionId,
@@ -314,7 +317,11 @@ function NextMeLoadingPage() {
       if (requestedSessionId !== sessionRef.current?.sessionId) return;
 
       if (!recommendation) {
-        console.error("미래의 목소리 또는 추천 미션 요청에 실패했습니다.");
+        debugError(
+          "nextTime",
+          "미래의 목소리 또는 추천 미션 요청에 실패했습니다.",
+          error,
+        );
         return;
       }
 
@@ -330,6 +337,7 @@ function NextMeLoadingPage() {
     };
   }, [
     applyRecommendation,
+    error,
     finishThenGoToRecommend,
     navigate,
     sessionId,
@@ -363,7 +371,9 @@ function NextMeLoadingPage() {
     setBarKey((prev) => prev + 1);
     setVoice(null);
 
-    console.log("미래의 목소리와 추천 미션을 다시 요청합니다.", { sessionId });
+    debugLog("nextTime", "미래의 목소리와 추천 미션을 다시 요청합니다.", {
+      sessionId,
+    });
     const startedAt = performance.now();
     const promise = refetch();
     loadRequestRef.current = {
@@ -374,7 +384,11 @@ function NextMeLoadingPage() {
     const recommendation = await promise;
     if (hasRewindStartedRef.current) return;
     if (!recommendation) {
-      console.error("미래의 목소리 또는 추천 미션 요청에 실패했습니다.");
+      debugError(
+        "nextTime",
+        "미래의 목소리 또는 추천 미션 요청에 실패했습니다.",
+        error,
+      );
       return;
     }
 

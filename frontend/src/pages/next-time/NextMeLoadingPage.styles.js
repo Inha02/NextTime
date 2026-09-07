@@ -1,6 +1,8 @@
 
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 const MIN_BAR_PERCENT = 38;
+const MIN_LOADING_MS = 5000;
+
 export const fadeInUp = keyframes`
   from {
     opacity: 0;
@@ -118,9 +120,9 @@ export const MascotWrap = styled.div`
     ${fadeInUp} 0.6s ease forwards,
     ${runMotion} 0.6s ease-in-out infinite;
   animation-delay: ${({ $delay, $immediate }) =>
-        $immediate ? "0s" : `${$delay}s`},
+    $immediate ? "0s" : `${$delay}s`},
     ${({ $delay, $immediate }) =>
-        $immediate ? "0.6s" : `${$delay + 0.6}s`};
+    $immediate ? "0.6s" : `${$delay + 0.6}s`};
 `;
 
 export const ClosingLine = styled(FadeLine)`
@@ -163,11 +165,11 @@ export const LoadingBarFill = styled.div`
   background: ${({ theme }) => theme.colors.primary};
   width: ${({ $stage }) => ($stage === "extra" ? `${MIN_BAR_PERCENT}%` : "0")};
   animation: ${({ $stage }) =>
-        $stage === "extra"
-            ? css`
+    $stage === "extra"
+      ? css`
           ${fillExtra} 20s linear forwards
         `
-            : css`
+      : css`
           ${fillMin} ${MIN_LOADING_MS}ms ease-out forwards
         `};
 `;
@@ -180,13 +182,13 @@ export const LoadingBarDot = styled.div`
   border-radius: 50%;
   background: ${({ theme }) => theme.colors.primary};
   left: ${({ $stage }) =>
-        $stage === "extra" ? `calc(${MIN_BAR_PERCENT}% - 0.1875rem)` : "0"};
+    $stage === "extra" ? `calc(${MIN_BAR_PERCENT}% - 0.1875rem)` : "0"};
   animation: ${({ $stage }) =>
-        $stage === "extra"
-            ? css`
+    $stage === "extra"
+      ? css`
           ${dotExtra} 20s linear forwards
         `
-            : css`
+      : css`
           ${dotMin} ${MIN_LOADING_MS}ms ease-out forwards
         `};
 `;
