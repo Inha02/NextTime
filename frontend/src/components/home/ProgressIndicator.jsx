@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./ProgressIndicator.styles";
 import circleOvercome from "../../assets/circle-overcome.svg";
 import circlePostpone from "../../assets/circle-postpone.svg";
 import circleSmoke from "../../assets/circle-smoke.svg";
@@ -11,30 +11,16 @@ const DOT_STATUS = {
 
 function ProgressIndicator({ dots }) {
   return (
-    <Row>
+    <S.Row>
       {dots.map((status, index) => (
-        <DotIcon
+        <S.DotIcon
           key={`${status}-${index}`}
           src={DOT_STATUS[status]}
           alt={status}
         />
       ))}
-    </Row>
+    </S.Row>
   );
 }
 
 export default ProgressIndicator;
-
-const Row = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  width: 100%;
-`;
-
-const DotIcon = styled.img`
-  width: 1.25rem;
-  height: 1.25rem;
-  display: block;
-  flex-shrink: 0;
-`;

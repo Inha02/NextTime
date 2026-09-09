@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./RecordPage.styles";
 import { useNavigate } from "react-router-dom";
 import { useElementHeight } from "../../hooks/useElementHeight";
 import { useNextTime } from "../../contexts/NextTimeContext";
@@ -11,7 +11,6 @@ import {
   isNextTimeStatusAfter,
   saveNextTimeResult,
 } from "../../api/nextTime";
-
 import {
   FEEDBACK_MAX_LENGTH,
   RECORD_OPTIONS,
@@ -22,6 +21,7 @@ import OptionGrid from "../../components/next-time/OptionGrid";
 import TextAreaField from "../../components/next-time/TextAreaField";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
 import ApiStatusView from "../../components/common/ApiStatusView";
+import { debugLog, debugError } from "../../api/debugLog";
 
 const RECORD_FIELD_LAYOUT = {
   howDidYouDo: "list-start",
@@ -30,7 +30,7 @@ const RECORD_FIELD_LAYOUT = {
 };
 
 const logSavedResult = (result) => {
-  console.log("결과를 저장했습니다.", {
+  debugLog("nextTime", "결과를 저장했습니다.", {
     sessionId: result.sessionId,
     status: result.status,
     result: result.result,
@@ -48,13 +48,8 @@ const logSavedResult = (result) => {
 
 function RecordPage() {
   const navigate = useNavigate();
-  const {
-    session,
-    sessionId,
-    recordAnswers,
-    setSession,
-    updateRecordAnswer,
-  } = useNextTime();
+  const { session, sessionId, recordAnswers, setSession, updateRecordAnswer } =
+    useNextTime();
   useNextTimeStatusRedirect("MISSION_COMPLETED");
   const { howDidYouDo, currentIntensity, missionFeedback, additionalNote } =
     recordAnswers;
@@ -84,12 +79,16 @@ function RecordPage() {
     });
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 결과를 저장할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 결과를 저장할 수 없습니다.");
       return;
     }
 
-    if (!payload.result || !payload.cravingAfter || !payload.missionHelpfulness) {
-      console.error("기록 데이터 매핑에 실패했습니다.", {
+    if (
+      !payload.result ||
+      !payload.cravingAfter ||
+      !payload.missionHelpfulness
+    ) {
+      debugError("nextTime", "기록 데이터 매핑에 실패했습니다.", null, {
         howDidYouDo,
         currentIntensity,
         missionFeedback,
@@ -103,12 +102,16 @@ function RecordPage() {
       isNextTimeStatusAfter(session?.status, "MISSION_COMPLETED")
     ) {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 이미 결과 기록 이후 단계라 저장을 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 이미 결과 기록 이후 단계라 저장을 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       if (session.status === "RESULT_RECORDED") {
         goToComplete(session);
         return;
@@ -117,10 +120,10 @@ function RecordPage() {
       return;
     }
 
-    console.log("결과를 저장합니다.", { sessionId, payload });
+    debugLog("nextTime", "결과를 저장합니다.", { sessionId, payload });
     const result = await execute(sessionId, payload);
     if (!result) {
-      console.error("결과 저장에 실패했습니다.");
+      debugError("nextTime", "결과 저장에 실패했습니다.", error);
       return;
     }
 
@@ -129,10 +132,10 @@ function RecordPage() {
   };
 
   const handleRetry = async () => {
-    console.log("결과 저장을 다시 시도합니다.", { sessionId });
+    debugLog("nextTime", "결과 저장을 다시 시도합니다.", { sessionId });
     const result = await refetch();
     if (!result) {
-      console.error("결과 저장에 실패했습니다.");
+      debugError("nextTime", "결과 저장에 실패했습니다.", error);
       return;
     }
 
@@ -149,173 +152,83 @@ function RecordPage() {
       loadingTitle="기록을 저장하는 중이에요"
       errorTitle="기록 저장에 실패했어요"
     >
-    <PageContainer>
-      <Header title="기록하기" back={false} />
+      <S.PageContainer>
+        <Header title="기록하기" back={false} />
 
-      <IntroBlock>
-        <MainTitle>지금은 어떠신가요?</MainTitle>
-        <HelperText>
-          방금의 변화를 다음 추천에 반영하고 패턴을 찾아드릴게요
-        </HelperText>
-      </IntroBlock>
+        <S.IntroBlock>
+          <S.MainTitle>지금은 어떠신가요?</S.MainTitle>
+          <S.HelperText>
+            방금의 변화를 다음 추천에 반영하고 패턴을 찾아드릴게요
+          </S.HelperText>
+        </S.IntroBlock>
 
-      <ScrollContent $bottomAreaHeight={bottomAreaHeight}>
-        <FieldGroup>
-          <FieldLabel>{RECORD_OPTIONS.howDidYouDo.label}</FieldLabel>
-          <OptionGrid
-            options={RECORD_OPTIONS.howDidYouDo.options}
-            variant="chip"
-            layout={RECORD_FIELD_LAYOUT.howDidYouDo}
-            selectedValue={howDidYouDo}
-            onChange={(value) => updateRecordAnswer("howDidYouDo", value)}
-          />
-        </FieldGroup>
+        <S.ScrollContent $bottomAreaHeight={bottomAreaHeight}>
+          <S.FieldGroup>
+            <S.FieldLabel>{RECORD_OPTIONS.howDidYouDo.label}</S.FieldLabel>
+            <OptionGrid
+              options={RECORD_OPTIONS.howDidYouDo.options}
+              variant="chip"
+              layout={RECORD_FIELD_LAYOUT.howDidYouDo}
+              selectedValue={howDidYouDo}
+              onChange={(value) => updateRecordAnswer("howDidYouDo", value)}
+            />
+          </S.FieldGroup>
 
-        <FieldGroup>
-          <FieldLabel>{RECORD_OPTIONS.currentIntensity.label}</FieldLabel>
-          <OptionGrid
-            options={RECORD_OPTIONS.currentIntensity.options}
-            variant="chip"
-            layout={RECORD_FIELD_LAYOUT.currentIntensity}
-            selectedValue={currentIntensity}
-            onChange={(value) => updateRecordAnswer("currentIntensity", value)}
-          />
-        </FieldGroup>
+          <S.FieldGroup>
+            <S.FieldLabel>{RECORD_OPTIONS.currentIntensity.label}</S.FieldLabel>
+            <OptionGrid
+              options={RECORD_OPTIONS.currentIntensity.options}
+              variant="chip"
+              layout={RECORD_FIELD_LAYOUT.currentIntensity}
+              selectedValue={currentIntensity}
+              onChange={(value) =>
+                updateRecordAnswer("currentIntensity", value)
+              }
+            />
+          </S.FieldGroup>
 
-        <FieldGroup>
-          <FieldLabel>{RECORD_OPTIONS.missionFeedback.label}</FieldLabel>
-          <OptionGrid
-            options={RECORD_OPTIONS.missionFeedback.options}
-            variant="chip"
-            layout={RECORD_FIELD_LAYOUT.missionFeedback}
-            selectedValue={missionFeedback}
-            onChange={(value) => updateRecordAnswer("missionFeedback", value)}
-            gap={"0.46rem"}
-          />
-        </FieldGroup>
+          <S.FieldGroup>
+            <S.FieldLabel>{RECORD_OPTIONS.missionFeedback.label}</S.FieldLabel>
+            <OptionGrid
+              options={RECORD_OPTIONS.missionFeedback.options}
+              variant="chip"
+              layout={RECORD_FIELD_LAYOUT.missionFeedback}
+              selectedValue={missionFeedback}
+              onChange={(value) => updateRecordAnswer("missionFeedback", value)}
+              gap={"0.46rem"}
+            />
+          </S.FieldGroup>
 
-        <FieldGroup>
-          <OptionalLabelBlock>
-            <FieldLabel>
-              {RECORD_NOTE.optionalLabel}
-              <OptionalTag> (선택 사항)</OptionalTag>
-            </FieldLabel>
-            <OptionalHint>{RECORD_NOTE.optionalHint}</OptionalHint>
-          </OptionalLabelBlock>
-          <TextAreaField
-            value={additionalNote}
-            onChange={(e) =>
-              updateRecordAnswer("additionalNote", e.target.value)
-            }
-            placeholder={RECORD_NOTE.placeholder}
-            maxLength={FEEDBACK_MAX_LENGTH}
-          />
-        </FieldGroup>
-      </ScrollContent>
+          <S.FieldGroup>
+            <S.OptionalLabelBlock>
+              <S.FieldLabel>
+                {RECORD_NOTE.optionalLabel}
+                <S.OptionalTag> (선택 사항)</S.OptionalTag>
+              </S.FieldLabel>
+              <S.OptionalHint>{RECORD_NOTE.optionalHint}</S.OptionalHint>
+            </S.OptionalLabelBlock>
+            <TextAreaField
+              value={additionalNote}
+              onChange={(e) =>
+                updateRecordAnswer("additionalNote", e.target.value)
+              }
+              placeholder={RECORD_NOTE.placeholder}
+              maxLength={FEEDBACK_MAX_LENGTH}
+            />
+          </S.FieldGroup>
+        </S.ScrollContent>
 
-      <BottomArea ref={bottomAreaRef}>
-        <PrimaryButton disabled={!isFormValid || isLoading} onClick={saveResult}>
-          기록하기
-        </PrimaryButton>
-      </BottomArea>
-    </PageContainer>
+        <S.BottomArea ref={bottomAreaRef}>
+          <PrimaryButton
+            disabled={!isFormValid || isLoading}
+            onClick={saveResult}
+          >
+            기록하기
+          </PrimaryButton>
+        </S.BottomArea>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default RecordPage;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-  position: relative;
-`;
-
-const IntroBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  margin-top: 1.13rem;
-  line-height: 1.4;
-  word-break: keep-all;
-`;
-
-const MainTitle = styled.h1`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.25rem;
-  font-weight: 600;
-`;
-
-const HelperText = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 0.875rem;
-  font-weight: 400;
-`;
-
-const ScrollContent = styled.div`
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2.25rem;
-  margin-top: 1.56rem;
-  padding-bottom: ${({ $bottomAreaHeight }) => $bottomAreaHeight}rem;
-`;
-
-const FieldGroup = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-`;
-
-const FieldLabel = styled.h2`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.4;
-  word-break: keep-all;
-`;
-
-const OptionalLabelBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`;
-
-const OptionalTag = styled.span`
-  color: ${({ theme }) => theme.colors.gray};
-`;
-
-const OptionalHint = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-`;
-
-const BottomArea = styled.div`
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  bottom: 0;
-  padding-block: 3.56rem 2.25rem;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 20, 0) 0%,
-    rgba(10, 10, 20, 0.85) 35%,
-    rgba(10, 10, 20, 0.85) 100%
-  );
-
-  pointer-events: none;
-
-  & > button {
-    opacity: 0.92;
-    pointer-events: auto;
-  }
-`;

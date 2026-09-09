@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled, { keyframes } from "styled-components";
+import * as S from "./NextMeLoadingPage.styles";
 import { useNextTime } from "../../contexts/NextTimeContext";
 import {
   generateFutureVoice,
@@ -17,11 +17,17 @@ import Header from "../../components/next-time/Header";
 import MascotCharacter from "../../components/next-time/MascotCharacter";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
 import ApiStatusView from "../../components/common/ApiStatusView";
+import { debugLog, debugError } from "../../api/debugLog";
 
 function NextMeLoadingPage() {
   const navigate = useNavigate();
-  const { session, sessionId, setSession, setFutureVoice, setRecommendedMission } =
-    useNextTime();
+  const {
+    session,
+    sessionId,
+    setSession,
+    setFutureVoice,
+    setRecommendedMission,
+  } = useNextTime();
   useNextTimeStatusRedirect("CONTEXT_SAVED");
   const {
     error: voiceError,
@@ -70,7 +76,7 @@ function NextMeLoadingPage() {
       if (!voiceResult || hasRewindStartedRef.current) return null;
 
       const { elapsedMs, ...sessionVoice } = voiceResult;
-      console.log("미래의 목소리를 생성했습니다.", {
+      debugLog("nextTime", "미래의 목소리를 생성했습니다.", {
         sessionId: sessionVoice.sessionId,
         source: sessionVoice.source,
         elapsedMs,
@@ -103,7 +109,7 @@ function NextMeLoadingPage() {
       hasNavigatedRef.current = true;
       setSession(nextSession);
       if (mission) {
-        console.log("추천 화면으로 이동합니다.", { mission });
+        debugLog("nextTime", "추천 화면으로 이동합니다.", { mission });
       }
       navigate("/next-time/recommend", {
         replace: true,
@@ -115,7 +121,8 @@ function NextMeLoadingPage() {
 
   useEffect(() => {
     if (!sessionId) {
-      console.error(
+      debugError(
+        "nextTime",
         "세션 ID가 없어 미래의 목소리를 요청할 수 없습니다.",
       );
       return;
@@ -125,11 +132,15 @@ function NextMeLoadingPage() {
 
     if (isNextTimeStatusAfter(sessionRef.current?.status, "CONTEXT_SAVED")) {
       const path = getNextTimePathByStatus(sessionRef.current.status);
-      console.log("이미 추천이 끝난 세션이라 미래의 목소리 요청을 건너뜁니다.", {
-        sessionId,
-        status: sessionRef.current.status,
-        path,
-      });
+      debugLog(
+        "nextTime",
+        "이미 추천이 끝난 세션이라 미래의 목소리 요청을 건너뜁니다.",
+        {
+          sessionId,
+          status: sessionRef.current.status,
+          path,
+        },
+      );
       applyRecommendation(sessionRef.current);
       navigate(path, {
         replace: true,
@@ -141,12 +152,12 @@ function NextMeLoadingPage() {
     let cancelled = false;
     const requestedSessionId = sessionId;
 
-    console.log("미래의 목소리를 생성합니다.", { sessionId });
+    debugLog("nextTime", "미래의 목소리를 생성합니다.", { sessionId });
     executeVoice(sessionId).then((voiceResult) => {
       if (cancelled || hasRewindStartedRef.current) return;
       if (requestedSessionId !== sessionRef.current?.sessionId) return;
       if (!voiceResult) {
-        console.error("미래의 목소리 요청에 실패했습니다.");
+        debugError("nextTime", "미래의 목소리 요청에 실패했습니다.");
         return;
       }
       applyVoice(voiceResult);
@@ -161,35 +172,42 @@ function NextMeLoadingPage() {
     if (isBusy || !voice) return;
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 추천 미션을 요청할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 추천 미션을 요청할 수 없습니다.");
       return;
     }
 
     if (isNextTimeStatusAfter(session?.status, "CONTEXT_SAVED")) {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 이미 추천 이후 단계라 추천 요청을 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 이미 추천 이후 단계라 추천 요청을 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       if (session.status === "MISSION_RECOMMENDED") {
         goToRecommend(session);
         return;
       }
-      navigate(path, { replace: true, state: session ? { session } : undefined });
+      navigate(path, {
+        replace: true,
+        state: session ? { session } : undefined,
+      });
       return;
     }
 
-    console.log("추천 미션을 요청합니다.", { sessionId });
+    debugLog("nextTime", "추천 미션을 요청합니다.", { sessionId });
     const recommendation = await executeRecommend(sessionId);
     if (hasRewindStartedRef.current) return;
     if (!recommendation) {
-      console.error("추천 미션 요청에 실패했습니다.");
+      debugError("nextTime", "추천 미션 요청에 실패했습니다.");
       return;
     }
 
-    console.log("추천 미션을 받았습니다.", {
+    debugLog("nextTime", "추천 미션을 받았습니다.", {
       sessionId: recommendation.sessionId,
       status: recommendation.status,
       source: recommendation.source,
@@ -207,11 +225,11 @@ function NextMeLoadingPage() {
     }
 
     if (recommendError) {
-      console.log("추천 미션을 다시 요청합니다.", { sessionId });
+      debugLog("nextTime", "추천 미션을 다시 요청합니다.", { sessionId });
       const recommendation = await refetchRecommend();
       if (hasRewindStartedRef.current) return;
       if (!recommendation) {
-        console.error("추천 미션 요청에 실패했습니다.");
+        debugError("nextTime", "추천 미션 요청에 실패했습니다.");
         return;
       }
       goToRecommend(recommendation);
@@ -233,11 +251,11 @@ function NextMeLoadingPage() {
 
     hasNavigatedRef.current = false;
     setVoice(null);
-    console.log("미래의 목소리를 다시 요청합니다.", { sessionId });
+    debugLog("nextTime", "미래의 목소리를 다시 요청합니다.", { sessionId });
     const voiceResult = await refetchVoice();
     if (hasRewindStartedRef.current) return;
     if (!voiceResult) {
-      console.error("미래의 목소리 요청에 실패했습니다.");
+      debugError("nextTime", "미래의 목소리 요청에 실패했습니다.");
       return;
     }
     applyVoice(voiceResult);
@@ -261,9 +279,7 @@ function NextMeLoadingPage() {
       variant="dark"
       isLoading={isBusy}
       error={rewindError || missingSessionError || recommendError || voiceError}
-      onRetry={
-        rewindError ? retryRewind : sessionId ? handleRetry : undefined
-      }
+      onRetry={rewindError ? retryRewind : sessionId ? handleRetry : undefined}
       loadingTitle={
         isRewinding
           ? "이전 화면으로 돌아가는 중이에요"
@@ -277,28 +293,30 @@ function NextMeLoadingPage() {
             : "미래의 목소리를 만들지 못했어요"
       }
     >
-      <PageContainer>
+      <S.PageContainer>
         <Header title="NEXT ME" subtitle="미래의 목소리" onBack={handleBack} />
 
-        <Content $bottomAreaHeight={bottomAreaHeight}>
+        <S.Content $bottomAreaHeight={bottomAreaHeight}>
           {voice ? (
             <>
-              <TextGroup>
-                <HighlightLine $delay={0.4}>{voice.futureHook}</HighlightLine>
-                <BodyLine $delay={0.9}>{voice.acknowledge}</BodyLine>
-                <BoldLine $delay={1.3}>{voice.futureReason}</BoldLine>
-              </TextGroup>
+              <S.TextGroup>
+                <S.HighlightLine $delay={0.4}>
+                  {voice.futureHook}
+                </S.HighlightLine>
+                <S.BodyLine $delay={0.9}>{voice.acknowledge}</S.BodyLine>
+                <S.BoldLine $delay={1.3}>{voice.futureReason}</S.BoldLine>
+              </S.TextGroup>
 
-              <MascotWrap $delay={1.6}>
+              <S.MascotWrap $delay={1.6}>
                 <MascotCharacter mood="run" size="lg" priority />
-              </MascotWrap>
+              </S.MascotWrap>
 
-              <ClosingLine $delay={2.0}>{voice.closing}</ClosingLine>
+              <S.ClosingLine $delay={2.0}>{voice.closing}</S.ClosingLine>
             </>
           ) : null}
-        </Content>
+        </S.Content>
 
-        <BottomArea ref={bottomAreaRef}>
+        <S.BottomArea ref={bottomAreaRef}>
           <PrimaryButton
             variant="primary"
             disabled={!voice || isBusy}
@@ -306,127 +324,10 @@ function NextMeLoadingPage() {
           >
             미션 추천받기
           </PrimaryButton>
-        </BottomArea>
-      </PageContainer>
+        </S.BottomArea>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default NextMeLoadingPage;
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const runMotion = keyframes`
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(0.5rem);
-  }
-`;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-  position: relative;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  min-height: 0;
-  overflow-y: auto;
-  padding-block: 1.25rem;
-  padding-bottom: ${({ $bottomAreaHeight }) => $bottomAreaHeight}rem;
-  text-align: center;
-`;
-
-const TextGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: center;
-  word-break: keep-all;
-`;
-
-const FadeLine = styled.p`
-  opacity: 0;
-  animation: ${fadeInUp} 0.6s ease forwards;
-  animation-delay: ${({ $delay }) => $delay}s;
-`;
-
-const HighlightLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const BodyLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-`;
-
-const BoldLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const MascotWrap = styled.div`
-  opacity: 0;
-  animation:
-    ${fadeInUp} 0.6s ease forwards,
-    ${runMotion} 0.6s ease-in-out infinite;
-  animation-delay: ${({ $delay }) => `${$delay}s`},
-    ${({ $delay }) => `${$delay + 0.6}s`};
-`;
-
-const ClosingLine = styled(FadeLine)`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.4;
-`;
-
-const BottomArea = styled.div`
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  bottom: 0;
-  padding-block: 2.5rem 2.25rem;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 20, 0) 0%,
-    rgba(10, 10, 20, 0.85) 35%,
-    rgba(10, 10, 20, 0.85) 100%
-  );
-
-  pointer-events: none;
-
-  & > button {
-    opacity: 0.92;
-    pointer-events: auto;
-  }
-`;
