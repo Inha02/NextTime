@@ -90,7 +90,7 @@ function PatternRecordPage() {
         shouldRefreshHome={false}
       />
 
-      <S.RecordDetailSheet
+      <RecordDetailSheet
         isOpen={isSheetOpen}
         onClose={handleCloseSheet}
         recordId={selectedRecordId}

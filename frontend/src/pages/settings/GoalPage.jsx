@@ -99,6 +99,7 @@ const GoalPage = () => {
     if (updateError) {
       console.log("나의 목표 수정을 다시 시도합니다.");
       const result = await retryUpdate();
+
       if (!result) {
         console.error("나의 목표 수정에 실패했습니다.");
         return;
@@ -136,6 +137,7 @@ const GoalPage = () => {
     const body = { [key]: nextValue };
     console.log("나의 목표를 수정합니다.", body);
     const result = await executeUpdate(body);
+    console.log("서버 응답 result:", result);
     if (!result) {
       console.error("나의 목표 수정에 실패했습니다.");
       return;

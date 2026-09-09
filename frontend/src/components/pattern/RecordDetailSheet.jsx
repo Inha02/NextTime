@@ -24,7 +24,7 @@ function RecordDetailSheet({ isOpen, onClose, recordId }) {
   const detail = data ? mapRecordDetail(data) : null;
 
   return (
-    <S.BottomSheet isOpen={isOpen} onClose={onClose}>
+    <BottomSheet isOpen={isOpen} onClose={onClose}>
       <ApiStatusView
         variant="embed"
         isLoading={Boolean(recordId) && !error && (isLoading || !data)}
@@ -46,7 +46,7 @@ function RecordDetailSheet({ isOpen, onClose, recordId }) {
           </>
         ) : null}
       </ApiStatusView>
-    </S.BottomSheet>
+    </BottomSheet>
   );
 }
 
