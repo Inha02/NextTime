@@ -5,7 +5,6 @@ import { useToast } from "../../contexts/ToastContext";
 import { registerUser } from "../../api/auth";
 import { getApiErrorMessage } from "../../api/getApiErrorMessage";
 import { debugError } from "../../api/debugLog";
-import Toast from "../../components/Toast/Toast";
 import * as S from "./Login.styles";
 
 const Login = () => {
@@ -13,7 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
 
   const doSignIn = async () => {
     await signIn({ username: email, password });
@@ -39,14 +38,16 @@ const Login = () => {
           await doSignIn();
         } catch (retryError) {
           debugError("auth", "재로그인 실패", retryError);
-          setErrorMessage(
-            getApiErrorMessage(
-              retryError,
-              "이메일 또는 비밀번호가 올바르지 않습니다.",
-            ),
-          );
+          if (!retryError.response) {
+            setErrorMessage(
+              getApiErrorMessage(
+                retryError,
+                "이메일 또는 비밀번호가 올바르지 않습니다.",
+              ),
+            );
+          }
         }
-      } else {
+      } else if (!error.response) {
         debugError("auth", "로그인 실패", error);
         setErrorMessage(
           getApiErrorMessage(
@@ -54,6 +55,8 @@ const Login = () => {
             "이메일 또는 비밀번호가 올바르지 않습니다.",
           ),
         );
+      } else {
+        debugError("auth", "로그인 실패", error);
       }
     }
   };
@@ -85,7 +88,6 @@ const Login = () => {
         아직 계정이 없으신가요?
         <S.StyledLink to="/signup">회원가입 하기</S.StyledLink>
       </S.BottomText>
-      {toast && <Toast message={toast.message} />}
     </S.FormContainer>
   );
 };

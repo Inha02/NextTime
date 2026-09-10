@@ -1,9 +1,9 @@
+import { createBrowserRouter } from "react-router-dom";
 import Splash from "./pages/Splash/Splash";
 import OnboardingPage from "./pages/onboarding/OnboardingPage";
 import OnboardingLoadingPage from "./pages/onboarding/OnboardingLoadingPage";
 import OnboardingCompletePage from "./pages/onboarding/OnboardingCompletePage";
 import OnboardingDevicePage from "./pages/onboarding/OnboardingDevicePage";
-import { createBrowserRouter } from "react-router-dom";
 import TabLayout from "./layouts/TabLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import NextTimeLayout from "./layouts/NextTimeLayout";
@@ -23,77 +23,82 @@ import RecommendPage from "./pages/next-time/RecommendPage";
 import MissionPage from "./pages/next-time/MissionPage";
 import RecordPage from "./pages/next-time/RecordPage";
 import CompletePage from "./pages/next-time/CompletePage";
+import { RootLayout } from "./components/Toast/ToastHost";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Splash />,
-  },
-
-  {
-    path: "/onboarding",
-    element: <OnboardingPage />,
-  },
-  {
-    path: "/onboarding/loading",
-    element: <OnboardingLoadingPage />,
-  },
-  {
-    path: "/onboarding/complete",
-    element: <OnboardingCompletePage />,
-  },
-  {
-    path: "/onboarding/device",
-    element: <OnboardingDevicePage />,
-  },
-  {
-    path: "/settings/goal",
-    element: <GoalPage />,
-  },
-  {
-    path: "/settings/exclude",
-    element: <ExcludePage />,
-  },
-  {
-    path: "/settings/device",
-    element: <DevicePage />,
-  },
-  {
-    path: "/pattern/records",
-    element: <PatternRecordPage />,
-  },
-  {
-    path: "/main",
-    element: <TabLayout />,
+    element: <RootLayout />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "pattern", element: <PatternPage /> },
-      { path: "settings", element: <SettingsPage /> },
-    ],
-  },
-  {
-    path: "/login",
-    element: <AuthLayout logoMarginTop={140} bottomPadding={200} />,
-    children: [{ index: true, element: <Login /> }],
-  },
-  {
-    path: "/signup",
-    element: <AuthLayout logoMarginTop={70} bottomPadding={100} />,
-    children: [{ index: true, element: <Signup /> }],
-  },
-  {
-    path: "/next-time",
-    children: [
-      { index: true, element: <NextTimeEntryPage /> },
       {
-        element: <NextTimeLayout />,
+        path: "/",
+        element: <Splash />,
+      },
+      {
+        path: "/onboarding",
+        element: <OnboardingPage />,
+      },
+      {
+        path: "/onboarding/loading",
+        element: <OnboardingLoadingPage />,
+      },
+      {
+        path: "/onboarding/complete",
+        element: <OnboardingCompletePage />,
+      },
+      {
+        path: "/onboarding/device",
+        element: <OnboardingDevicePage />,
+      },
+      {
+        path: "/settings/goal",
+        element: <GoalPage />,
+      },
+      {
+        path: "/settings/exclude",
+        element: <ExcludePage />,
+      },
+      {
+        path: "/settings/device",
+        element: <DevicePage />,
+      },
+      {
+        path: "/pattern/records",
+        element: <PatternRecordPage />,
+      },
+      {
+        path: "/main",
+        element: <TabLayout />,
         children: [
-          { path: "context", element: <ContextFlowPage /> },
-          { path: "next-me", element: <NextMeLoadingPage /> },
-          { path: "recommend", element: <RecommendPage /> },
-          { path: "mission", element: <MissionPage /> },
-          { path: "record", element: <RecordPage /> },
-          { path: "complete", element: <CompletePage /> },
+          { index: true, element: <HomePage /> },
+          { path: "pattern", element: <PatternPage /> },
+          { path: "settings", element: <SettingsPage /> },
+        ],
+      },
+      {
+        path: "/login",
+        element: <AuthLayout logoMarginTop={140} bottomPadding={200} />,
+        children: [{ index: true, element: <Login /> }],
+      },
+      {
+        path: "/signup",
+        element: <AuthLayout logoMarginTop={70} bottomPadding={100} />,
+        children: [{ index: true, element: <Signup /> }],
+      },
+      {
+        path: "/next-time",
+        children: [
+          { index: true, element: <NextTimeEntryPage /> },
+          {
+            element: <NextTimeLayout />,
+            children: [
+              { path: "context", element: <ContextFlowPage /> },
+              { path: "next-me", element: <NextMeLoadingPage /> },
+              { path: "recommend", element: <RecommendPage /> },
+              { path: "mission", element: <MissionPage /> },
+              { path: "record", element: <RecordPage /> },
+              { path: "complete", element: <CompletePage /> },
+            ],
+          },
         ],
       },
     ],

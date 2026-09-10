@@ -44,6 +44,7 @@ function useRewindNextTimeSession({ isBusy = false } = {}) {
     console.log("세션을 초기화합니다.", { sessionId, status: session?.status });
     const result = await execute(sessionId);
     if (!result) {
+      hasStartedRef.current = false;
       console.error("세션 초기화에 실패했습니다.");
       return;
     }

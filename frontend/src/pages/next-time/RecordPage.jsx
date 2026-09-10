@@ -149,7 +149,6 @@ function RecordPage() {
       isLoading={isLoading}
       error={error}
       onRetry={handleRetry}
-      loadingTitle="기록을 저장하는 중이에요"
       errorTitle="기록 저장에 실패했어요"
     >
       <S.PageContainer>

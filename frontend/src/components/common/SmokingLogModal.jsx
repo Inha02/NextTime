@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import * as S from "./SmokingLogModal.styles";
 import Modal from "./Modal";
 import PrimaryButton from "../common/PrimaryButton";
-import ApiStatusView from "./ApiStatusView";
 import { SMOKING_TRIGGER_OPTIONS, createSmokingRecord } from "../../api/record";
 import { getHome } from "../../api/home";
 import { useToast } from "../../contexts/ToastContext";
@@ -17,10 +16,9 @@ function SmokingLogModal({
 }) {
   const [selectedId, setSelectedId] = useState("");
   const { showToast } = useToast();
-  const { data, isLoading, error, execute, refetch, reset } = useAsync(
-    createSmokingRecord,
-    { immediate: false },
-  );
+  const { isLoading, execute, reset } = useAsync(createSmokingRecord, {
+    immediate: false,
+  });
 
   useEffect(() => {
     if (isOpen) return;
@@ -48,7 +46,7 @@ function SmokingLogModal({
     onSuccess?.(record);
     if (!shouldRefreshHome) return;
     try {
-      const homeData = await getHome();
+      const homeData = await getHome({ skipErrorToast: true });
       onSuccess?.(record, homeData);
     } catch (err) {
       debugError("record", "홈 데이터 갱신 실패", err);
@@ -57,49 +55,43 @@ function SmokingLogModal({
 
   return (
     <Modal isOpen={isOpen} onClose={handleModalClose}>
-      <ApiStatusView
-        variant="embed"
-        isLoading={isLoading || Boolean(data)}
-        error={error}
-        onRetry={refetch}
-        loadingTitle="기록하는 중이에요"
-        errorTitle="기록에 실패했어요"
-      >
-        <S.FormStack>
-          <S.Title>방금 피운 담배를 기록할까요?</S.Title>
-          <S.TimeBlock>
-            <S.TimeLabel>기록 시각</S.TimeLabel>
-            <S.Time>{timeText} (자동)</S.Time>
-          </S.TimeBlock>
-          <S.QuestionBlock>
-            <S.QuestionLabel>어떤 상황이었나요? (선택)</S.QuestionLabel>
-            <S.OptionGrid>
-              {SMOKING_TRIGGER_OPTIONS.map((option) => (
-                <S.OptionButton
-                  key={option.id}
-                  type="button"
-                  $active={selectedId === option.id}
-                  onClick={() =>
-                    setSelectedId((prev) =>
-                      prev === option.id ? "" : option.id,
-                    )
-                  }
-                >
-                  {option.label}
-                </S.OptionButton>
-              ))}
-            </S.OptionGrid>
-          </S.QuestionBlock>
-          <S.ButtonBlock>
-            <PrimaryButton type="button" onClick={handleModalSubmit}>
-              기록하기
-            </PrimaryButton>
-            <S.SkipButton type="button" onClick={handleModalClose}>
-              취소
-            </S.SkipButton>
-          </S.ButtonBlock>
-        </S.FormStack>
-      </ApiStatusView>
+      <S.FormStack>
+        <S.Title>방금 피운 담배를 기록할까요?</S.Title>
+        <S.TimeBlock>
+          <S.TimeLabel>기록 시각</S.TimeLabel>
+          <S.Time>{timeText} (자동)</S.Time>
+        </S.TimeBlock>
+        <S.QuestionBlock>
+          <S.QuestionLabel>어떤 상황이었나요? (선택)</S.QuestionLabel>
+          <S.OptionGrid>
+            {SMOKING_TRIGGER_OPTIONS.map((option) => (
+              <S.OptionButton
+                key={option.id}
+                type="button"
+                $active={selectedId === option.id}
+                disabled={isLoading}
+                onClick={() =>
+                  setSelectedId((prev) => (prev === option.id ? "" : option.id))
+                }
+              >
+                {option.label}
+              </S.OptionButton>
+            ))}
+          </S.OptionGrid>
+        </S.QuestionBlock>
+        <S.ButtonBlock>
+          <PrimaryButton
+            type="button"
+            disabled={isLoading}
+            onClick={handleModalSubmit}
+          >
+            기록하기
+          </PrimaryButton>
+          <S.SkipButton type="button" onClick={handleModalClose}>
+            취소
+          </S.SkipButton>
+        </S.ButtonBlock>
+      </S.FormStack>
     </Modal>
   );
 }

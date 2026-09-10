@@ -52,13 +52,11 @@ const fetchNextMe = async () => {
 };
 
 const GoalPage = () => {
-  const { data, isLoading, error, refetch, setData } = useAsync(fetchNextMe);
-  const {
-    isLoading: isUpdating,
-    error: updateError,
-    execute: executeUpdate,
-    refetch: retryUpdate,
-  } = useAsync(updateGoal, { immediate: false });
+  const { data, setData } = useAsync(fetchNextMe);
+  const { isLoading: isUpdating, execute: executeUpdate } = useAsync(
+    updateGoal,
+    { immediate: false },
+  );
   const [activeSheet, setActiveSheet] = useState(null);
 
   const mascotImage = useMemo(
@@ -93,24 +91,6 @@ const GoalPage = () => {
         "금연을 하거나 흡연량을 줄이기 시작할 때의 마음을 남겨주세요.",
       placeholder: '"러닝도 수영도, 내 체력 때문에 포기하고 싶지 않아."',
     },
-  };
-
-  const handleRetry = async () => {
-    if (updateError) {
-      console.log("나의 목표 수정을 다시 시도합니다.");
-      const result = await retryUpdate();
-
-      if (!result) {
-        console.error("나의 목표 수정에 실패했습니다.");
-        return;
-      }
-      console.log("나의 목표를 수정했습니다.", result);
-      setData(result);
-      return;
-    }
-
-    console.log("나의 목표 조회를 다시 시도합니다.");
-    refetch();
   };
 
   const handleSubmit = (key) => async (newValue) => {
@@ -148,30 +128,15 @@ const GoalPage = () => {
   };
 
   const currentConfig = activeSheet ? sheetConfig[activeSheet] : null;
-  const showUpdateStatus = isUpdating || Boolean(updateError);
 
   return (
     <S.Wrapper>
       <BackHeader title="나의 목표" />
 
       <S.StatusArea>
-        <ApiStatusView
-          isLoading={(isLoading && !data) || isUpdating}
-          error={!data ? error : updateError}
-          onRetry={handleRetry}
-          loadingTitle={
-            isUpdating
-              ? "나의 목표를 저장하는 중이에요"
-              : "나의 목표를 불러오는 중이에요"
-          }
-          errorTitle={
-            updateError
-              ? "나의 목표를 저장하지 못했어요"
-              : "불러오기에 실패했어요"
-          }
-        >
-          {data ? (
-            <S.Content>
+        <ApiStatusView variant="embed" isLoading={isUpdating}>
+        {data ? (
+          <S.Content>
               <S.FirstSectionLabel>현재 원하는 변화</S.FirstSectionLabel>
               <S.Row>
                 <S.RowText>
@@ -218,7 +183,7 @@ const GoalPage = () => {
         </ApiStatusView>
       </S.StatusArea>
 
-      {currentConfig && !showUpdateStatus && (
+      {currentConfig && !isUpdating && (
         <EditSheet
           type={currentConfig.type}
           title={currentConfig.title}

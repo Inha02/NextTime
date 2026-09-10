@@ -1,67 +1,53 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import mascotImg from "../../assets/mascot-loading.webp";
 import {
   saveOnboarding,
   generateNextMe,
   saveCopingProfile,
 } from "../../api/onboarding";
-import { getApiErrorMessage } from "../../api/getApiErrorMessage";
 import { debugError } from "../../api/debugLog";
-import * as S from "./OnboardingLoadingPage.styles";
+import ApiStatusView from "../../components/common/ApiStatusView";
 
 const OnboardingLoadingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { answers, customInputs } = location.state || {};
-  const [setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const runOnboarding = useCallback(async () => {
     if (!answers) {
       navigate("/onboarding");
       return;
     }
 
-    const runOnboarding = async () => {
-      try {
-        await saveOnboarding(answers);
-        const nextMeData = await generateNextMe(answers, customInputs);
-        await saveCopingProfile(answers, customInputs);
-        localStorage.setItem("onboardingAnswers", JSON.stringify(answers));
-        navigate("/onboarding/complete", { state: { nextMeData, answers } });
-      } catch (error) {
-        debugError("onboarding", "저장 실패", error);
-        setErrorMessage(getApiErrorMessage(error, "온보딩 저장에 실패했어요."));
-      }
-    };
+    setIsLoading(true);
+    setError(null);
 
-    runOnboarding();
+    try {
+      await saveOnboarding(answers, { skipErrorToast: true });
+      const nextMeData = await generateNextMe(answers, customInputs);
+      await saveCopingProfile(answers, customInputs);
+      localStorage.setItem("onboardingAnswers", JSON.stringify(answers));
+      navigate("/onboarding/complete", { state: { nextMeData, answers } });
+    } catch (err) {
+      debugError("onboarding", "저장 실패", err);
+      setError(err);
+      setIsLoading(false);
+    }
   }, [answers, customInputs, navigate]);
 
+  useEffect(() => {
+    runOnboarding();
+  }, [runOnboarding]);
+
   return (
-    <S.Wrapper>
-      <S.Content>
-        <S.MascotWrapper>
-          <S.MascotImage src={mascotImg} alt="" />
-        </S.MascotWrapper>
-        <S.Title>NEXT ME를 만들고 있어요</S.Title>
-        <S.Description>
-          당신이 남긴 이야기를 바탕으로
-          <br />
-          앞으로 떠올리고 싶은 모습을 만들고 있어요.
-          <br />
-          담배 생각이 날 때면 상황에 맞는
-          <br />
-          '미래의 목소리'로 다시 찾아와요.
-        </S.Description>
-      </S.Content>
-      <S.Footer>
-        <S.ProgressBarTrack>
-          <S.ProgressBarFill />
-        </S.ProgressBarTrack>
-        <S.FooterText>AI가 당신의 맞춤형 미래를 생성 중이에요...</S.FooterText>
-      </S.Footer>
-    </S.Wrapper>
+    <ApiStatusView
+      isLoading={isLoading}
+      error={error}
+      onRetry={runOnboarding}
+      errorTitle="NEXT ME를 만들지 못했어요"
+    />
   );
 };
 

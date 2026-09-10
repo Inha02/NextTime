@@ -30,24 +30,21 @@ function NextMeLoadingPage() {
   } = useNextTime();
   useNextTimeStatusRedirect("CONTEXT_SAVED");
   const {
+    isLoading: isVoiceLoading,
     error: voiceError,
     execute: executeVoice,
     refetch: refetchVoice,
   } = useAsync(generateFutureVoice, { immediate: false });
   const {
     isLoading: isRecommending,
-    error: recommendError,
     execute: executeRecommend,
-    refetch: refetchRecommend,
   } = useAsync(getNextTimeRecommendation, { immediate: false });
   const {
     rewind,
-    retry: retryRewind,
     isLoading: isRewinding,
-    error: rewindError,
     hasStartedRef: hasRewindStartedRef,
-  } = useRewindNextTimeSession({ isBusy: isRecommending });
-  const isBusy = isRewinding || isRecommending;
+  } = useRewindNextTimeSession({ isBusy: isRecommending || isVoiceLoading });
+  const isBusy = isRewinding || isRecommending || isVoiceLoading;
   const [voice, setVoice] = useState(null);
   const [bottomAreaRef, bottomAreaHeight] = useElementHeight();
   const hasNavigatedRef = useRef(false);
@@ -219,25 +216,7 @@ function NextMeLoadingPage() {
   };
 
   const handleRetry = async () => {
-    if (rewindError) {
-      await retryRewind();
-      return;
-    }
-
-    if (recommendError) {
-      debugLog("nextTime", "추천 미션을 다시 요청합니다.", { sessionId });
-      const recommendation = await refetchRecommend();
-      if (hasRewindStartedRef.current) return;
-      if (!recommendation) {
-        debugError("nextTime", "추천 미션 요청에 실패했습니다.");
-        return;
-      }
-      goToRecommend(recommendation);
-      return;
-    }
-
     if (!sessionId) return;
-
     if (hasRewindStartedRef.current) return;
 
     if (isNextTimeStatusAfter(session?.status, "CONTEXT_SAVED")) {
@@ -277,21 +256,10 @@ function NextMeLoadingPage() {
   return (
     <ApiStatusView
       variant="dark"
-      isLoading={isBusy}
-      error={rewindError || missingSessionError || recommendError || voiceError}
-      onRetry={rewindError ? retryRewind : sessionId ? handleRetry : undefined}
-      loadingTitle={
-        isRewinding
-          ? "이전 화면으로 돌아가는 중이에요"
-          : "미션을 추천하는 중이에요"
-      }
-      errorTitle={
-        rewindError
-          ? "이전 화면으로 돌아가지 못했어요"
-          : recommendError
-            ? "행동 추천에 실패했어요"
-            : "미래의 목소리를 만들지 못했어요"
-      }
+      isLoading={isVoiceLoading}
+      error={missingSessionError || voiceError}
+      onRetry={sessionId ? handleRetry : undefined}
+      errorTitle="미래의 목소리를 만들지 못했어요"
     >
       <S.PageContainer>
         <Header title="NEXT ME" subtitle="미래의 목소리" onBack={handleBack} />

@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useToast } from "../contexts/ToastContext";
 import { useLocation } from "react-router-dom";
 import BackHeader from "../components/common/BackHeader";
 import SmokingLogModal from "../components/common/SmokingLogModal";
 import RecordDetailSheet from "../components/pattern/RecordDetailSheet";
-import Toast from "../components/Toast/Toast";
 import RecordList from "../components/pattern/RecordList";
 import { mapRecordListItem } from "../components/pattern/mapRecordItem";
-import ApiStatusView from "../components/common/ApiStatusView";
 import useAsync from "../hooks/useAsync";
 import { getRecords } from "../api/record";
 import * as S from "./PatternRecordPage.styles";
@@ -16,9 +13,8 @@ import Plus from "../assets/plus.svg";
 function PatternRecordPage() {
   const location = useLocation();
   const selectedIdFromState = location.state?.selectedId;
-  const { toast } = useToast();
 
-  const { data, isLoading, error, refetch } = useAsync(() => getRecords(30));
+  const { data, refetch } = useAsync(() => getRecords(30));
   const records = useMemo(
     () => (data?.records ?? []).map(mapRecordListItem),
     [data],
@@ -54,26 +50,17 @@ function PatternRecordPage() {
         <BackHeader title="기록" />
       </S.HeaderWrap>
 
-      <ApiStatusView
-        isLoading={isLoading && !data}
-        error={!data ? error : null}
-        onRetry={refetch}
-        loadingTitle="기록을 불러오는 중이에요"
-      >
-        {data ? (
-          <S.ScrollContent>
-            {records.length > 0 ? (
-              <RecordList
-                recordList={records}
-                onClick={handleItemClick}
-                ItemComponent={S.RecordPageItem}
-              />
-            ) : (
-              <S.EmptyText>아직 기록이 없어요</S.EmptyText>
-            )}
-          </S.ScrollContent>
-        ) : null}
-      </ApiStatusView>
+      <S.ScrollContent>
+        {records.length > 0 ? (
+          <RecordList
+            recordList={records}
+            onClick={handleItemClick}
+            ItemComponent={S.RecordPageItem}
+          />
+        ) : (
+          data ? <S.EmptyText>아직 기록이 없어요</S.EmptyText> : null
+        )}
+      </S.ScrollContent>
 
       <S.AddButton
         type="button"
@@ -95,8 +82,6 @@ function PatternRecordPage() {
         onClose={handleCloseSheet}
         recordId={selectedRecordId}
       />
-
-      {toast && <Toast message={toast.message} />}
     </S.PageContainer>
   );
 }

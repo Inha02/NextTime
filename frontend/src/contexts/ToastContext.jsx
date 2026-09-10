@@ -1,20 +1,57 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { bindToastApi } from "../api/toastBridge";
 
 const ToastContext = createContext(null);
 
 export const ToastProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
+  const timeoutRef = useRef(null);
 
-  const showToast = useCallback((message) => {
-    setToast({ message });
-
-    setTimeout(() => {
-      setToast(null);
-    }, 2000);
+  const hideToast = useCallback((id) => {
+    setToast((prev) => {
+      if (!prev) return null;
+      if (id && prev.id !== id) return prev;
+      return null;
+    });
   }, []);
 
+  const showToast = useCallback((message, options = {}) => {
+    const { type = "success", duration = 2000, id = "toast" } = options;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    setToast({ message, type, id });
+
+    if (duration > 0) {
+      timeoutRef.current = setTimeout(() => {
+        setToast((prev) => (prev?.id === id ? null : prev));
+        timeoutRef.current = null;
+      }, duration);
+    }
+  }, []);
+
+  useEffect(() => {
+    bindToastApi({ showToast, hideToast });
+    return () => {
+      bindToastApi(null);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [hideToast, showToast]);
+
   return (
-    <ToastContext.Provider value={{ toast, showToast }}>
+    <ToastContext.Provider value={{ toast, showToast, hideToast }}>
       {children}
     </ToastContext.Provider>
   );
