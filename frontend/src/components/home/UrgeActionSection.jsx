@@ -3,7 +3,11 @@ import PrimaryButton from "../common/PrimaryButton";
 import SmokingLogModal from "../common/SmokingLogModal";
 import * as S from "./UrgeActionSection.styles";
 
-function UrgeActionSection({ onStartNextTime, onSmokingRecorded }) {
+function UrgeActionSection({
+  onStartNextTime,
+  onSmokingRecorded,
+  isStarting = false,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -13,7 +17,7 @@ function UrgeActionSection({ onStartNextTime, onSmokingRecorded }) {
         <S.Subtitle>지금 상황에 맞는 행동을 찾아드릴게요.</S.Subtitle>
       </S.TextBlock>
 
-      <PrimaryButton onClick={onStartNextTime}>
+      <PrimaryButton onClick={onStartNextTime} disabled={isStarting}>
         NEXT TIME 시작하기
       </PrimaryButton>
 

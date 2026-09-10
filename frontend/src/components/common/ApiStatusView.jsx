@@ -7,8 +7,6 @@ function ApiStatusView({
   error,
   onRetry,
   variant = "page",
-  loadingTitle = "불러오는 중이에요",
-  loadingDescription = "잠시만 기다려주세요.",
   errorTitle = "불러오기에 실패했어요",
   errorDescription,
   children,
@@ -20,9 +18,7 @@ function ApiStatusView({
     return (
       <S.StatusScreen $variant={variant}>
         <S.StatusContent>
-          <S.Mascot src={mascotLoading} alt="" $variant={variant} />
-          <S.StatusTitle $variant={variant}>{loadingTitle}</S.StatusTitle>
-          <S.StatusDesc $variant={variant}>{loadingDescription}</S.StatusDesc>
+          <S.Spinner $variant={variant} role="status" aria-label="로딩 중" />
         </S.StatusContent>
       </S.StatusScreen>
     );
@@ -32,6 +28,7 @@ function ApiStatusView({
     return (
       <S.StatusScreen $variant={variant}>
         <S.StatusContent>
+          <S.Mascot src={mascotLoading} alt="" $variant={variant} />
           <S.StatusTitle $variant={variant}>{errorTitle}</S.StatusTitle>
           <S.StatusDesc $variant={variant}>
             {resolvedErrorDescription}

@@ -91,4 +91,9 @@ export const SkipButton = styled.button`
   font-weight: 400;
   line-height: 1.4;
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 `;

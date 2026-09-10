@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import BackHeader from "../../components/common/BackHeader";
-import Toast from "../../components/Toast/Toast";
 import { useToast } from "../../contexts/ToastContext";
 import CheckImg from "../../assets/check.svg";
 import { getExcludedMissions, restoreMission } from "../../api/settings";
@@ -10,7 +9,7 @@ import * as S from "./ExcludePage.styles";
 const ExcludePage = () => {
   const [excludedList, setExcludedList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast, showToast } = useToast();
+  const { showToast } = useToast();
 
   useEffect(() => {
     const fetchExcluded = async () => {
@@ -81,7 +80,6 @@ const ExcludePage = () => {
           </S.EmptyContent>
         )}
       </S.Content>
-      {toast && <Toast message={toast.message} />}
     </S.Wrapper>
   );
 };

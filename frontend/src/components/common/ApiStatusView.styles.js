@@ -1,4 +1,10 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 export const StatusScreen = styled.div`
   flex: 1;
@@ -31,6 +37,17 @@ export const StatusContent = styled.div`
   width: 100%;
   max-width: 18rem;
   text-align: center;
+`;
+
+export const Spinner = styled.div`
+  width: ${({ $variant }) => ($variant === "embed" ? "2.5rem" : "3.5rem")};
+  height: ${({ $variant }) => ($variant === "embed" ? "2.5rem" : "3.5rem")};
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  border: 0.28rem solid ${({ theme }) => theme.colors.gray};
+  border-top-color: ${({ theme }) => theme.colors.primary};
+  box-sizing: border-box;
+  animation: ${spin} 0.8s linear infinite;
 `;
 
 export const Mascot = styled.img`

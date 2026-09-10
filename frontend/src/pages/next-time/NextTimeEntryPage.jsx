@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiStatusView from "../../components/common/ApiStatusView";
+import styled from "styled-components";
 import useAsync from "../../hooks/useAsync";
 import {
   getNextTimePathByStatus,
@@ -10,9 +10,7 @@ import { debugError, debugLog } from "../../api/debugLog";
 
 function NextTimeEntryPage() {
   const navigate = useNavigate();
-  const { data, isLoading, error, refetch } = useAsync(
-    startFreshNextTimeSession,
-  );
+  const { data, error, refetch } = useAsync(startFreshNextTimeSession);
 
   useEffect(() => {
     if (!data?.sessionId) return;
@@ -32,15 +30,35 @@ function NextTimeEntryPage() {
   }, [error]);
 
   return (
-    <ApiStatusView
-      variant="dark"
-      isLoading={isLoading || Boolean(data?.sessionId)}
-      error={error}
-      onRetry={refetch}
-      loadingTitle="NEXT TIME을 시작하는 중이에요"
-      errorTitle="NEXT TIME을 시작하지 못했어요"
-    />
+    <Screen>
+      {error ? (
+        <RetryButton type="button" onClick={refetch}>
+          다시 시도
+        </RetryButton>
+      ) : null}
+    </Screen>
   );
 }
 
 export default NextTimeEntryPage;
+
+const Screen = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: ${({ theme }) => theme.colors.bg_black};
+`;
+
+const RetryButton = styled.button`
+  width: min(18rem, calc(100% - 2.5rem));
+  height: 3rem;
+  border: none;
+  border-radius: 1rem;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+`;

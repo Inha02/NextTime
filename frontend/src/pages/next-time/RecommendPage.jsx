@@ -13,7 +13,6 @@ import {
 import Header from "../../components/next-time/Header";
 import CircularTimer from "../../components/next-time/CircularTimer";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
-import ApiStatusView from "../../components/common/ApiStatusView";
 import useSkipNextTimeMission from "../../hooks/useSkipNextTimeMission";
 import useRewindNextTimeSession from "../../hooks/useRewindNextTimeSession";
 
@@ -44,26 +43,17 @@ function RecommendPage() {
   const titleLines = splitMissionTitle(title);
   const {
     isLoading: isStarting,
-    error: startError,
     execute,
-    refetch,
   } = useAsync(startNextTimeMission, {
     immediate: false,
   });
-  const {
-    skip,
-    retry: retrySkip,
-    isLoading: isSkipping,
-    error: skipError,
-  } = useSkipNextTimeMission({ isBusy: isStarting });
-  const {
-    rewind,
-    retry: retryRewind,
-    isLoading: isRewinding,
-    error: rewindError,
-  } = useRewindNextTimeSession({ isBusy: isStarting || isSkipping });
+  const { skip, isLoading: isSkipping } = useSkipNextTimeMission({
+    isBusy: isStarting,
+  });
+  const { rewind, isLoading: isRewinding } = useRewindNextTimeSession({
+    isBusy: isStarting || isSkipping,
+  });
   const isLoading = isStarting || isSkipping || isRewinding;
-  const error = rewindError || skipError || startError;
 
   const [bottomAreaRef, bottomAreaHeight] = useElementHeight();
 
@@ -121,34 +111,6 @@ function RecommendPage() {
     goToMission(result);
   };
 
-  const handleRetry = async () => {
-    if (rewindError) {
-      await retryRewind();
-      return;
-    }
-
-    if (skipError) {
-      await retrySkip();
-      return;
-    }
-
-    console.log("미션 시작을 다시 시도합니다.", { sessionId });
-    const result = await refetch();
-    if (!result) {
-      console.error("미션 시작에 실패했습니다.");
-      return;
-    }
-
-    console.log("미션을 시작했습니다.", {
-      sessionId: result.sessionId,
-      status: result.status,
-      mission: result.mission,
-      startedAt: result.startedAt,
-      result,
-    });
-    goToMission(result);
-  };
-
   const handleSkip = () => {
     skip();
   };
@@ -159,27 +121,7 @@ function RecommendPage() {
   };
 
   return (
-    <ApiStatusView
-      variant="dark"
-      isLoading={isLoading}
-      error={error}
-      onRetry={handleRetry}
-      loadingTitle={
-        isRewinding
-          ? "이전 화면으로 돌아가는 중이에요"
-          : isSkipping
-            ? "미션을 건너뛰는 중이에요"
-            : "미션을 시작하는 중이에요"
-      }
-      errorTitle={
-        rewindError
-          ? "이전 화면으로 돌아가지 못했어요"
-          : skipError
-            ? "미션을 건너뛰지 못했어요"
-            : "미션을 시작하지 못했어요"
-      }
-    >
-      <S.PageContainer>
+    <S.PageContainer>
         <Header title="NEXT TIME" onBack={handleBack} />
 
         <S.Content $bottomAreaHeight={bottomAreaHeight}>
@@ -198,15 +140,18 @@ function RecommendPage() {
         </S.Content>
 
         <S.BottomArea ref={bottomAreaRef}>
-          <PrimaryButton variant="primary" onClick={startMission}>
+          <PrimaryButton
+            variant="primary"
+            disabled={isLoading}
+            onClick={startMission}
+          >
             시작하기
           </PrimaryButton>
-          <S.SkipButton type="button" onClick={handleSkip}>
+          <S.SkipButton type="button" disabled={isLoading} onClick={handleSkip}>
             건너뛰기
           </S.SkipButton>
         </S.BottomArea>
       </S.PageContainer>
-    </ApiStatusView>
   );
 }
 

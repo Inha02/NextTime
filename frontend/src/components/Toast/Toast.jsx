@@ -1,10 +1,17 @@
-// src/components/Toast/Toast.jsx
 import { ToastWrapper, Icon } from "./Toast.styles";
 
-const Toast = ({ message, placement = "default" }) => {
+const TOAST_ICONS = {
+  success: "✅",
+  error: "⚠️",
+  loading: "⏳",
+};
+
+const Toast = ({ message, type = "success", placement = "default" }) => {
+  const icon = TOAST_ICONS[type];
+
   return (
-    <ToastWrapper $placement={placement}>
-      <Icon>✅</Icon>
+    <ToastWrapper $placement={placement} $multiline={type !== "success"}>
+      {icon ? <Icon>{icon}</Icon> : null}
       {message}
     </ToastWrapper>
   );

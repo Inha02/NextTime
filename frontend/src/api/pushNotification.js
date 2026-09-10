@@ -174,6 +174,7 @@ export async function disablePushNotification() {
         });
         const response = await axiosInstance.delete("/api/push/subscriptions", {
             data: { endpoint: subscription.endpoint },
+            skipErrorToast: true,
         });
         debugLog("Push", "DELETE 성공", { status: response.status });
     } catch (error) {
@@ -325,6 +326,7 @@ async function saveSubscription(subscription) {
         const response = await axiosInstance.post(
             "/api/push/subscriptions",
             payload,
+            { skipErrorToast: true },
         );
         debugLog("Push", "POST 성공", { status: response.status });
     } catch (error) {

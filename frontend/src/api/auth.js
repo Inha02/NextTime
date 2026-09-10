@@ -7,7 +7,9 @@ export const registerUser = async () => {
 
 export const getMe = async () => {
     try {
-        const response = await axiosInstance.get("/users/me");
+        const response = await axiosInstance.get("/users/me", {
+            skipErrorToast: true,
+        });
         return response.data.data;
     } catch (error) {
         return null;

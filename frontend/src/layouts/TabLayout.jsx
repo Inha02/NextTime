@@ -1,18 +1,14 @@
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNavigation from "../components/common/navigation/BottomNavigation";
-import Toast from "../components/Toast/Toast";
-import { useToast } from "../contexts/ToastContext";
 import styled from "styled-components";
 
 function TabLayout() {
   const { pathname } = useLocation();
-  const { toast } = useToast();
 
   return (
     <TabContainer>
       <MainContent>
         <Outlet key={pathname} />
-        {toast && <Toast message={toast.message} placement="tab-bottom" />}
       </MainContent>
       <BottomNavigation />
     </TabContainer>

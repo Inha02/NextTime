@@ -15,7 +15,6 @@ import Header from "../../components/next-time/Header";
 import ProgressBar from "../../components/next-time/ProgressBar";
 import OptionGrid from "../../components/next-time/OptionGrid";
 import PrimaryButton from "../../components/next-time/PrimaryButton";
-import ApiStatusView from "../../components/common/ApiStatusView";
 import { debugLog, debugError } from "../../api/debugLog";
 
 const STEP_FIELD_MAP = {
@@ -39,7 +38,7 @@ function ContextFlowPage() {
   const { session, sessionId, setSession } = nextTime;
   useNextTimeStatusRedirect("CREATED");
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const { isLoading, error, execute, refetch } = useAsync(saveNextTimeContext, {
+  const { isLoading, execute } = useAsync(saveNextTimeContext, {
     immediate: false,
   });
 
@@ -112,18 +111,6 @@ function ContextFlowPage() {
     goToNextMe(result);
   };
 
-  const handleRetry = async () => {
-    debugLog("nextTime", "상황 데이터 저장을 다시 시도합니다.");
-    const result = await refetch();
-    if (!result) {
-      debugError("nextTime", "상황 데이터 저장에 실패했습니다.");
-      return;
-    }
-
-    debugLog("nextTime", "상황 데이터를 저장했습니다.", result);
-    goToNextMe(result);
-  };
-
   const handleBack = () => {
     if (isLoading) return;
 
@@ -150,15 +137,7 @@ function ContextFlowPage() {
   };
 
   return (
-    <ApiStatusView
-      variant="dark"
-      isLoading={isLoading}
-      error={error}
-      onRetry={handleRetry}
-      loadingTitle="상황을 저장하는 중이에요"
-      errorTitle="상황 저장에 실패했어요"
-    >
-      <S.PageContainer>
+    <S.PageContainer>
         <Header onBack={handleBack} />
 
         <S.IntroBlock>
@@ -190,14 +169,13 @@ function ContextFlowPage() {
 
         <S.BottomArea ref={bottomAreaRef}>
           <PrimaryButton
-            disabled={!selectedValue}
+            disabled={!selectedValue || isLoading}
             onClick={handlePrimaryAction}
           >
             {isLastStep ? "내게 맞는 행동 찾기" : "다음"}
           </PrimaryButton>
         </S.BottomArea>
       </S.PageContainer>
-    </ApiStatusView>
   );
 }
 

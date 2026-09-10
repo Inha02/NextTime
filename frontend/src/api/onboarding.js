@@ -6,7 +6,7 @@ import {
     CHANGE_GOAL_MAP,
 } from "./onboardingMappers";
 
-export const saveOnboarding = async (answers) => {
+export const saveOnboarding = async (answers, config) => {
     const smokingContextCodes = (answers.cravingTriggers || [])
         .slice(0, 2)
         .map((label) => SMOKING_CONTEXT_MAP[label]);
@@ -24,7 +24,7 @@ export const saveOnboarding = async (answers) => {
         difficultMoment: answers.hardestMoment || null,
     };
 
-    const response = await axiosInstance.put("/users/me/onboarding", body);
+    const response = await axiosInstance.put("/users/me/onboarding", body, config);
     return response.data.data;
 };
 

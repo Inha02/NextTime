@@ -12,7 +12,6 @@ import {
 import Header from "../../components/next-time/Header";
 import CircularTimer from "../../components/next-time/CircularTimer";
 import WhyThisBox from "../../components/next-time/WhyThisBox";
-import ApiStatusView from "../../components/common/ApiStatusView";
 import useSkipNextTimeMission from "../../hooks/useSkipNextTimeMission";
 import useRewindNextTimeSession from "../../hooks/useRewindNextTimeSession";
 import { debugLog, debugError } from "../../api/debugLog";
@@ -47,23 +46,16 @@ function MissionPage() {
     isLoading: isCompleting,
     error: completeError,
     execute,
-    refetch,
   } = useAsync(completeNextTimeMission, { immediate: false });
-  const {
-    skip,
-    retry: retrySkip,
-    isLoading: isSkipping,
-    error: skipError,
-  } = useSkipNextTimeMission({ isBusy: isCompleting });
+  const { skip, isLoading: isSkipping, error: skipError } =
+    useSkipNextTimeMission({ isBusy: isCompleting });
   const {
     rewind,
-    retry: retryRewind,
     isLoading: isRewinding,
     error: rewindError,
     hasStartedRef: hasRewindStartedRef,
   } = useRewindNextTimeSession({ isBusy: isCompleting || isSkipping });
   const isLoading = isCompleting || isSkipping || isRewinding;
-  const error = rewindError || skipError || completeError;
   const hasRequestedCompleteRef = useRef(false);
 
   const [remainingSeconds, setRemainingSeconds] = useState(() =>
@@ -135,35 +127,6 @@ function MissionPage() {
     sessionId,
   ]);
 
-  const handleRetry = async () => {
-    if (rewindError) {
-      await retryRewind();
-      return;
-    }
-
-    if (skipError) {
-      await retrySkip();
-      return;
-    }
-
-    debugLog("nextTime", "미션 완료를 다시 시도합니다.", { sessionId });
-    const result = await refetch();
-    if (!result) {
-      debugError("nextTime", "미션 완료에 실패했습니다.", completeError);
-      return;
-    }
-
-    debugLog("nextTime", "미션을 완료했습니다.", {
-      sessionId: result.sessionId,
-      status: result.status,
-      mission: result.mission,
-      startedAt: result.startedAt,
-      completedAt: result.completedAt,
-      result,
-    });
-    goToRecord(result);
-  };
-
   useEffect(() => {
     if (remainingSeconds <= 0) return;
 
@@ -214,27 +177,7 @@ function MissionPage() {
   };
 
   return (
-    <ApiStatusView
-      variant="dark"
-      isLoading={isLoading}
-      error={error}
-      onRetry={handleRetry}
-      loadingTitle={
-        isRewinding
-          ? "이전 화면으로 돌아가는 중이에요"
-          : isSkipping
-            ? "미션을 건너뛰는 중이에요"
-            : "미션을 완료하는 중이에요"
-      }
-      errorTitle={
-        rewindError
-          ? "이전 화면으로 돌아가지 못했어요"
-          : skipError
-            ? "미션을 건너뛰지 못했어요"
-            : "미션을 완료하지 못했어요"
-      }
-    >
-      <S.PageContainer>
+    <S.PageContainer>
         <Header title="NEXT TIME" onBack={handleBack} />
 
         <S.AllContent>
@@ -265,13 +208,16 @@ function MissionPage() {
           </S.Box>
 
           <S.BottomArea>
-            <S.SkipButton type="button" onClick={handleSkip}>
+            <S.SkipButton
+              type="button"
+              disabled={isLoading}
+              onClick={handleSkip}
+            >
               건너뛰기
             </S.SkipButton>
           </S.BottomArea>
         </S.AllContent>
       </S.PageContainer>
-    </ApiStatusView>
   );
 }
 
