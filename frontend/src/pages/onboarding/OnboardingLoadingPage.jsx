@@ -1,15 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import mascotImg from "../../assets/mascot-loading.webp";
-import { saveOnboarding } from "../../api/saveOnboarding";
-import { generateNextMe } from "../../api/generateNextMe";
-import { saveCopingProfile } from "../../api/saveCopingProfile";
+import {
+  saveOnboarding,
+  generateNextMe,
+  saveCopingProfile,
+} from "../../api/onboarding";
+import { getApiErrorMessage } from "../../api/getApiErrorMessage";
+import { debugError } from "../../api/debugLog";
 import * as S from "./OnboardingLoadingPage.styles";
 
 const OnboardingLoadingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { answers, customInputs } = location.state || {};
+  const [setErrorMessage] = useState("");
 
   useEffect(() => {
     if (!answers) {
@@ -25,7 +30,8 @@ const OnboardingLoadingPage = () => {
         localStorage.setItem("onboardingAnswers", JSON.stringify(answers));
         navigate("/onboarding/complete", { state: { nextMeData, answers } });
       } catch (error) {
-        console.error("온보딩 저장 실패:", error);
+        debugError("onboarding", "저장 실패", error);
+        setErrorMessage(getApiErrorMessage(error, "온보딩 저장에 실패했어요."));
       }
     };
 

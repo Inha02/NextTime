@@ -3,10 +3,8 @@ import BackHeader from "../../components/common/BackHeader";
 import Toast from "../../components/Toast/Toast";
 import { useToast } from "../../contexts/ToastContext";
 import CheckImg from "../../assets/check.svg";
-import {
-  getExcludedMissions,
-  restoreMission,
-} from "../../api/excludedMissions";
+import { getExcludedMissions, restoreMission } from "../../api/settings";
+import { debugError } from "../../api/debugLog";
 import * as S from "./ExcludePage.styles";
 
 const ExcludePage = () => {
@@ -20,12 +18,11 @@ const ExcludePage = () => {
         const data = await getExcludedMissions();
         setExcludedList(data.excludedMissions);
       } catch (error) {
-        console.error("추천 제외 목록 조회 실패:", error);
+        debugError("settings", "추천 제외 목록 조회 실패", error);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchExcluded();
   }, []);
 
@@ -37,19 +34,17 @@ const ExcludePage = () => {
       );
       showToast(`'${mission.name}' 추천이 다시 포함됐어요`);
     } catch (error) {
-      console.error("복구 실패:", error);
+      debugError("settings", "추천 제외 복구 실패", error);
     }
   };
 
-  if (isLoading) return null; // TODO: 로딩 스피너로 교체 가능
+  if (isLoading) return null;
 
   return (
     <S.Wrapper>
       <BackHeader title="추천 제외 관리" />
-
       <S.Content>
         <S.SectionLabel>추천하지 않을 행동</S.SectionLabel>
-
         {excludedList.length > 0 ? (
           <S.ItemList>
             {excludedList.map((mission) => (
@@ -86,7 +81,6 @@ const ExcludePage = () => {
           </S.EmptyContent>
         )}
       </S.Content>
-
       {toast && <Toast message={toast.message} />}
     </S.Wrapper>
   );

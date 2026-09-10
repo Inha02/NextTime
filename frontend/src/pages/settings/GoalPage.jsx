@@ -9,7 +9,7 @@ import mascotEconomy from "../../assets/mascot-economy.webp";
 import mascotGrowth from "../../assets/mascot-growth.webp";
 import mascotRelationship from "../../assets/mascot-relationship.webp";
 import mascotSelfEfficacy from "../../assets/mascot-self-efficacy.webp";
-import { getNextMe, updateGoal } from "../../api/goal";
+import { getNextMe, updateGoal } from "../../api/settings";
 import { CHANGE_GOAL_LABEL_MAP } from "../../api/onboardingMappers";
 import * as S from "./GoalPage.styles";
 
@@ -99,6 +99,7 @@ const GoalPage = () => {
     if (updateError) {
       console.log("나의 목표 수정을 다시 시도합니다.");
       const result = await retryUpdate();
+
       if (!result) {
         console.error("나의 목표 수정에 실패했습니다.");
         return;
@@ -119,7 +120,9 @@ const GoalPage = () => {
       key === "changeGoal" ? newValue : String(newValue ?? "").trim();
 
     if (key !== "changeGoal" && !nextValue) {
-      console.error("나의 목표 수정에 실패했습니다. 수정할 값은 비어 있을 수 없습니다.");
+      console.error(
+        "나의 목표 수정에 실패했습니다. 수정할 값은 비어 있을 수 없습니다.",
+      );
       return;
     }
 
@@ -134,6 +137,7 @@ const GoalPage = () => {
     const body = { [key]: nextValue };
     console.log("나의 목표를 수정합니다.", body);
     const result = await executeUpdate(body);
+    console.log("서버 응답 result:", result);
     if (!result) {
       console.error("나의 목표 수정에 실패했습니다.");
       return;

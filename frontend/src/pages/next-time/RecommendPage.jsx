@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./RecommendPage.styles";
 import { useNavigate } from "react-router-dom";
 import { useElementHeight } from "../../hooks/useElementHeight";
 import { useNextTime } from "../../contexts/NextTimeContext";
@@ -28,11 +28,19 @@ function splitMissionTitle(title) {
 
 function RecommendPage() {
   const navigate = useNavigate();
-  const { session, sessionId, recommendedMission, setSession, setRecommendedMission } =
-    useNextTime();
+  const {
+    session,
+    sessionId,
+    recommendedMission,
+    setSession,
+    setRecommendedMission,
+  } = useNextTime();
   useNextTimeStatusRedirect("MISSION_RECOMMENDED");
-  const { title = "", description = "", durationSeconds = 0 } =
-    recommendedMission ?? {};
+  const {
+    title = "",
+    description = "",
+    durationSeconds = 0,
+  } = recommendedMission ?? {};
   const titleLines = splitMissionTitle(title);
   const {
     isLoading: isStarting,
@@ -171,119 +179,35 @@ function RecommendPage() {
             : "미션을 시작하지 못했어요"
       }
     >
-    <PageContainer>
-      <Header title="NEXT TIME" onBack={handleBack} />
+      <S.PageContainer>
+        <Header title="NEXT TIME" onBack={handleBack} />
 
-      <Content $bottomAreaHeight={bottomAreaHeight}>
-        <MissionTitle>
-          {titleLines.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </MissionTitle>
+        <S.Content $bottomAreaHeight={bottomAreaHeight}>
+          <S.MissionTitle>
+            {titleLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </S.MissionTitle>
 
-        <CircularTimer
-          totalSeconds={durationSeconds}
-          remainingSeconds={durationSeconds}
-        />
+          <CircularTimer
+            totalSeconds={durationSeconds}
+            remainingSeconds={durationSeconds}
+          />
 
-        <Description>{description}</Description>
-      </Content>
+          <S.Description>{description}</S.Description>
+        </S.Content>
 
-      <BottomArea ref={bottomAreaRef}>
-        <PrimaryButton variant="primary" onClick={startMission}>
-          시작하기
-        </PrimaryButton>
-        <SkipButton type="button" onClick={handleSkip}>
-          건너뛰기
-        </SkipButton>
-      </BottomArea>
-    </PageContainer>
+        <S.BottomArea ref={bottomAreaRef}>
+          <PrimaryButton variant="primary" onClick={startMission}>
+            시작하기
+          </PrimaryButton>
+          <S.SkipButton type="button" onClick={handleSkip}>
+            건너뛰기
+          </S.SkipButton>
+        </S.BottomArea>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default RecommendPage;
-
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-  position: relative;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 0;
-  overflow-y: auto;
-  margin-top: 2.44rem;
-  padding-top: 1.25rem;
-  padding-bottom: ${({ $bottomAreaHeight }) => $bottomAreaHeight}rem;
-`;
-
-const MissionTitle = styled.h1`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
-  word-break: keep-all;
-  padding-top: 3.06rem;
-
-  p {
-    margin: 0;
-  }
-`;
-
-const Description = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-  word-break: keep-all;
-  white-space: pre-line;
-`;
-
-const BottomArea = styled.div`
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  bottom: 0;
-  padding: 2.5rem 0.94rem 2.06rem;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 20, 0) 0%,
-    rgba(10, 10, 20, 0.85) 35%,
-    rgba(10, 10, 20, 0.85) 100%
-  );
-
-  pointer-events: none;
-
-  & > button {
-    opacity: 0.92;
-    pointer-events: auto;
-  }
-`;
-
-const SkipButton = styled.button`
-  width: 100%;
-  height: 3.5rem;
-  border: none;
-  background: none;
-  color: ${({ theme }) => theme.colors.gray};
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-  cursor: pointer;
-`;

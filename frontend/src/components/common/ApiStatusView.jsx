@@ -1,5 +1,5 @@
 import mascotLoading from "../../assets/mascot-loading.webp";
-import styled from "styled-components";
+import * as S from "./ApiStatusView.styles";
 import { getApiErrorMessage } from "../../api/getApiErrorMessage";
 
 function ApiStatusView({
@@ -18,29 +18,31 @@ function ApiStatusView({
 
   if (isLoading) {
     return (
-      <StatusScreen $variant={variant}>
-        <StatusContent>
-          <Mascot src={mascotLoading} alt="" $variant={variant} />
-          <StatusTitle $variant={variant}>{loadingTitle}</StatusTitle>
-          <StatusDesc $variant={variant}>{loadingDescription}</StatusDesc>
-        </StatusContent>
-      </StatusScreen>
+      <S.StatusScreen $variant={variant}>
+        <S.StatusContent>
+          <S.Mascot src={mascotLoading} alt="" $variant={variant} />
+          <S.StatusTitle $variant={variant}>{loadingTitle}</S.StatusTitle>
+          <S.StatusDesc $variant={variant}>{loadingDescription}</S.StatusDesc>
+        </S.StatusContent>
+      </S.StatusScreen>
     );
   }
 
   if (error) {
     return (
-      <StatusScreen $variant={variant}>
-        <StatusContent>
-          <StatusTitle $variant={variant}>{errorTitle}</StatusTitle>
-          <StatusDesc $variant={variant}>{resolvedErrorDescription}</StatusDesc>
+      <S.StatusScreen $variant={variant}>
+        <S.StatusContent>
+          <S.StatusTitle $variant={variant}>{errorTitle}</S.StatusTitle>
+          <S.StatusDesc $variant={variant}>
+            {resolvedErrorDescription}
+          </S.StatusDesc>
           {onRetry && (
-            <RetryButton type="button" onClick={onRetry}>
+            <S.RetryButton type="button" onClick={onRetry}>
               다시 시도
-            </RetryButton>
+            </S.RetryButton>
           )}
-        </StatusContent>
-      </StatusScreen>
+        </S.StatusContent>
+      </S.StatusScreen>
     );
   }
 
@@ -48,74 +50,3 @@ function ApiStatusView({
 }
 
 export default ApiStatusView;
-
-const StatusScreen = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: ${({ $variant }) => ($variant === "embed" ? "12rem" : "100%")};
-  padding: ${({ $variant }) =>
-    $variant === "embed" ? "0.5rem 0" : "0 1.25rem"};
-  padding-top: ${({ $variant }) =>
-    $variant === "embed"
-      ? "0.5rem"
-      : "max(var(--safe-top), env(safe-area-inset-top, 0px))"};
-  padding-bottom: ${({ $variant }) =>
-    $variant === "embed"
-      ? "0.5rem"
-      : "max(var(--safe-bottom), env(safe-area-inset-bottom, 0px))"};
-  background-color: ${({ $variant, theme }) => {
-    if ($variant === "embed") return "transparent";
-    if ($variant === "dark") return theme.colors.bg_black;
-    return theme.colors.bg0;
-  }};
-`;
-
-const StatusContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 18rem;
-  text-align: center;
-`;
-
-const Mascot = styled.img`
-  width: ${({ $variant }) => ($variant === "embed" ? "5rem" : "7.5rem")};
-  height: auto;
-  margin-bottom: 0.5rem;
-  object-fit: contain;
-`;
-
-const StatusTitle = styled.h2`
-  color: ${({ theme, $variant }) =>
-    $variant === "dark" ? theme.colors.white : theme.colors.bg1};
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.4;
-`;
-
-const StatusDesc = styled.p`
-  color: ${({ theme, $variant }) =>
-    $variant === "dark" ? theme.colors.light_gray : theme.colors.gray};
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.5;
-  white-space: pre-line;
-`;
-
-const RetryButton = styled.button`
-  margin-top: 0.5rem;
-  width: 100%;
-  height: 3rem;
-  border: none;
-  border-radius: 1rem;
-  background-color: ${({ theme }) => theme.colors.primary};
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 0.9375rem;
-  font-weight: 600;
-  line-height: 1.4;
-  cursor: pointer;
-`;

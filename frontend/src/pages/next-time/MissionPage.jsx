@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import * as S from "./MissionPage.styles";
 import { useNextTime } from "../../contexts/NextTimeContext";
 import useAsync from "../../hooks/useAsync";
 import useNextTimeStatusRedirect from "../../hooks/useNextTimeStatusRedirect";
@@ -15,6 +15,7 @@ import WhyThisBox from "../../components/next-time/WhyThisBox";
 import ApiStatusView from "../../components/common/ApiStatusView";
 import useSkipNextTimeMission from "../../hooks/useSkipNextTimeMission";
 import useRewindNextTimeSession from "../../hooks/useRewindNextTimeSession";
+import { debugLog, debugError } from "../../api/debugLog";
 
 function splitMissionTitle(title) {
   if (!title) return [""];
@@ -38,13 +39,8 @@ function MissionPage() {
   const navigate = useNavigate();
   const { session, sessionId, recommendedMission, setSession } = useNextTime();
   useNextTimeStatusRedirect("MISSION_STARTED");
-  const {
-    title,
-    missionDescription,
-    durationSeconds,
-    whyThisText,
-    startedAt,
-  } = recommendedMission;
+  const { title, missionDescription, durationSeconds, whyThisText, startedAt } =
+    recommendedMission;
   const titleLines = splitMissionTitle(title);
   const missionDescriptionLines = missionDescription?.split("\n") ?? [];
   const {
@@ -52,10 +48,7 @@ function MissionPage() {
     error: completeError,
     execute,
     refetch,
-  } = useAsync(
-    completeNextTimeMission,
-    { immediate: false },
-  );
+  } = useAsync(completeNextTimeMission, { immediate: false });
   const {
     skip,
     retry: retrySkip,
@@ -91,18 +84,22 @@ function MissionPage() {
     if (isLoading || hasRewindStartedRef.current) return;
 
     if (!sessionId) {
-      console.error("세션 ID가 없어 미션을 완료할 수 없습니다.");
+      debugError("nextTime", "세션 ID가 없어 미션을 완료할 수 없습니다.");
       return;
     }
 
     if (isNextTimeStatusAfter(session?.status, "MISSION_STARTED")) {
       const path = getNextTimePathByStatus(session.status);
-      console.log("세션이 이미 미션 시작 이후 단계라 미션 완료를 건너뜁니다.", {
-        sessionId,
-        status: session.status,
-        path,
-        session,
-      });
+      debugLog(
+        "nextTime",
+        "세션이 이미 미션 시작 이후 단계라 미션 완료를 건너뜁니다.",
+        {
+          sessionId,
+          status: session.status,
+          path,
+          session,
+        },
+      );
       if (session.status === "MISSION_COMPLETED") {
         goToRecord(session);
         return;
@@ -111,14 +108,14 @@ function MissionPage() {
       return;
     }
 
-    console.log("미션을 완료합니다.", { sessionId });
+    debugLog("nextTime", "미션을 완료합니다.", { sessionId });
     const result = await execute(sessionId);
     if (!result) {
-      console.error("미션 완료에 실패했습니다.");
+      debugError("nextTime", "미션 완료에 실패했습니다.", completeError);
       return;
     }
 
-    console.log("미션을 완료했습니다.", {
+    debugLog("nextTime", "미션을 완료했습니다.", {
       sessionId: result.sessionId,
       status: result.status,
       mission: result.mission,
@@ -128,6 +125,7 @@ function MissionPage() {
     });
     goToRecord(result);
   }, [
+    completeError,
     execute,
     goToRecord,
     hasRewindStartedRef,
@@ -148,14 +146,14 @@ function MissionPage() {
       return;
     }
 
-    console.log("미션 완료를 다시 시도합니다.", { sessionId });
+    debugLog("nextTime", "미션 완료를 다시 시도합니다.", { sessionId });
     const result = await refetch();
     if (!result) {
-      console.error("미션 완료에 실패했습니다.");
+      debugError("nextTime", "미션 완료에 실패했습니다.", completeError);
       return;
     }
 
-    console.log("미션을 완료했습니다.", {
+    debugLog("nextTime", "미션을 완료했습니다.", {
       sessionId: result.sessionId,
       status: result.status,
       mission: result.mission,
@@ -236,138 +234,45 @@ function MissionPage() {
             : "미션을 완료하지 못했어요"
       }
     >
-    <PageContainer>
-      <Header title="NEXT TIME" onBack={handleBack} />
+      <S.PageContainer>
+        <Header title="NEXT TIME" onBack={handleBack} />
 
-      <AllContent>
-        <Box>
-          <Content>
-            <StatusLabel>미션 진행 중</StatusLabel>
+        <S.AllContent>
+          <S.Box>
+            <S.Content>
+              <S.StatusLabel>미션 진행 중</S.StatusLabel>
 
-            <MissionTitle>
-              {titleLines.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </MissionTitle>
+              <S.MissionTitle>
+                {titleLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </S.MissionTitle>
 
-            <CircularTimer
-              totalSeconds={durationSeconds}
-              remainingSeconds={Math.max(0, remainingSeconds)}
-              showRemainingLabel
-            />
+              <CircularTimer
+                totalSeconds={durationSeconds}
+                remainingSeconds={Math.max(0, remainingSeconds)}
+                showRemainingLabel
+              />
 
-            <Description>
-              {missionDescriptionLines.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </Description>
-          </Content>
+              <S.Description>
+                {missionDescriptionLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </S.Description>
+            </S.Content>
 
-          {whyThisText && <WhyThisBox text={whyThisText} />}
-        </Box>
+            {whyThisText && <WhyThisBox text={whyThisText} />}
+          </S.Box>
 
-        <BottomArea>
-          <SkipButton type="button" onClick={handleSkip}>
-            건너뛰기
-          </SkipButton>
-        </BottomArea>
-      </AllContent>
-    </PageContainer>
+          <S.BottomArea>
+            <S.SkipButton type="button" onClick={handleSkip}>
+              건너뛰기
+            </S.SkipButton>
+          </S.BottomArea>
+        </S.AllContent>
+      </S.PageContainer>
     </ApiStatusView>
   );
 }
 
 export default MissionPage;
-
-const PageContainer = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-  padding-inline: 1.25rem;
-`;
-
-const AllContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow-y: auto;
-`;
-
-const Box = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding-block: 1.25rem;
-  min-height: 0;
-  margin-top: 2.44rem;
-`;
-
-const StatusLabel = styled.p`
-  color: ${({ theme }) => theme.colors.primary};
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
-`;
-
-const MissionTitle = styled.h1`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
-  word-break: keep-all;
-
-  p {
-    margin: 0;
-  }
-`;
-
-const Description = styled.div`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-  word-break: keep-all;
-
-  p {
-    margin: 0;
-  }
-`;
-
-const BottomArea = styled.div`
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2.06rem;
-  padding-inline: 0.94rem;
-  background: transparent;
-
-  & > button {
-    opacity: 0.92;
-  }
-`;
-
-const SkipButton = styled.button`
-  width: 100%;
-  height: 3.5rem;
-  border: none;
-  background: none;
-  color: ${({ theme }) => theme.colors.gray};
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-  cursor: pointer;
-`;

@@ -3,8 +3,7 @@ import BackHeader from "../../components/common/BackHeader";
 import * as S from "./DevicePage.styles";
 import deviceImg from "../../assets/device.svg";
 import device2Img from "../../assets/device2.svg";
-import { getMqttStatus } from "../../api/mqttStatus";
-import { connectButtonEvents } from "../../api/buttonEvents";
+import { getMqttStatus, connectButtonEvents } from "../../api/device";
 import { debugError, debugLog } from "../../api/debugLog";
 import PushNotificationSection from "./PushNotificationSection";
 
@@ -43,12 +42,14 @@ const DevicePage = () => {
       debugLog("SSE", "기기 화면에서 버튼 신호 반영", event);
       setLastEvent(event);
       setIsConnected(true);
-    }).then((cleanup) => {
-      disconnect = cleanup;
-      debugLog("SSE", "기기 화면 SSE 연결 함수 준비 완료");
-    }).catch((error) => {
-      debugError("SSE", "기기 화면 SSE 연결 실패", error);
-    });
+    })
+      .then((cleanup) => {
+        disconnect = cleanup;
+        debugLog("SSE", "기기 화면 SSE 연결 함수 준비 완료");
+      })
+      .catch((error) => {
+        debugError("SSE", "기기 화면 SSE 연결 실패", error);
+      });
 
     return () => {
       debugLog("SSE", "기기 화면 이탈 - SSE 해제");

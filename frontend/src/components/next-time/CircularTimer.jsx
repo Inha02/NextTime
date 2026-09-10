@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./CircularTimer.styles";
 
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
@@ -20,15 +20,15 @@ function CircularTimer({
   const dashOffset = circumference * (1 - progress);
 
   return (
-    <Wrapper>
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <CircleTrack
+    <S.Wrapper>
+      <S.Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <S.CircleTrack
           cx={size / 2}
           cy={size / 2}
           r={radius}
           strokeWidth={strokeWidth}
         />
-        <CircleProgress
+        <S.CircleProgress
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -36,60 +36,13 @@ function CircularTimer({
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
         />
-      </Svg>
-      <CenterContent>
-        <TimeText>{formatTime(remainingSeconds)}</TimeText>
-        {showRemainingLabel && <RemainingLabel>남은 시간</RemainingLabel>}
-      </CenterContent>
-    </Wrapper>
+      </S.Svg>
+      <S.CenterContent>
+        <S.TimeText>{formatTime(remainingSeconds)}</S.TimeText>
+        {showRemainingLabel && <S.RemainingLabel>남은 시간</S.RemainingLabel>}
+      </S.CenterContent>
+    </S.Wrapper>
   );
 }
 
 export default CircularTimer;
-
-const Wrapper = styled.div`
-  position: relative;
-  width: 12.5rem;
-  height: 12.5rem;
-`;
-
-const Svg = styled.svg`
-  display: block;
-  transform: rotate(-90deg);
-`;
-
-const CircleTrack = styled.circle`
-  fill: none;
-  stroke: #1d1d20;
-`;
-
-const CircleProgress = styled.circle`
-  fill: none;
-  stroke: ${({ theme }) => theme.colors.primary};
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.3s ease;
-`;
-
-const CenterContent = styled.div`
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const TimeText = styled.p`
-  color: ${({ theme }) => theme.colors.white};
-  font-size: 2.34375rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.078rem;
-`;
-
-const RemainingLabel = styled.p`
-  color: ${({ theme }) => theme.colors.light_gray};
-  font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.4;
-`;

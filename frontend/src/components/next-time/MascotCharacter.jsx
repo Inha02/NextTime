@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import * as S from "./MascotCharacter.styles";
 import mascotNeutral from "../../assets/mascot-neutral.webp";
 import mascotCraving from "../../assets/mascot-craving.webp";
 import mascotUrgent from "../../assets/mascot-urgent.webp";
@@ -33,7 +33,7 @@ function MascotCharacter({
   }
 
   return (
-    <Image
+    <S.Image
       src={src}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
@@ -46,10 +46,3 @@ function MascotCharacter({
 }
 
 export default MascotCharacter;
-
-const Image = styled.img`
-  width: ${({ $width }) => $width};
-  height: ${({ $height }) => $height};
-  object-fit: contain;
-  flex-shrink: 0;
-`;

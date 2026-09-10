@@ -39,7 +39,7 @@ export const Description = styled.p`
   font-size: 15px;
   line-height: 1.4;
   text-align: center;
-  color: #68686D;
+  color: ${({ theme }) => theme.colors.gray};
   margin-bottom: 8px;
 `;
 
@@ -47,7 +47,7 @@ export const SubDescription = styled.p`
   font-size: 15px;
   line-height: 1.4;
   text-align: center;
-  color: #68686D; 
+  color: ${({ theme }) => theme.colors.gray};; 
   margin-bottom: 148px;
 `;
 
@@ -60,7 +60,7 @@ export const ConnectButton = styled.button`
   border: none;
   border-radius: 16px;
   background-color: ${({ theme }) => theme.colors.primary};
-  color: #ffffff;
+  color: ${({ theme }) => theme.colors.white};
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
